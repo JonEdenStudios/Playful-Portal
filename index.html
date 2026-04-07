@@ -911,6 +911,17 @@ function doLogout() {
     ls.style.opacity = '';
   });
 }
+
+/* ─── PANELS ────────────────────────────── */
+function openPanel(id) {
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('open');
+}
+
+function closePanel(id) {
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.remove('open');
+}
 </script>
 </body>
 </html>
