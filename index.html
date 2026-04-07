@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal — Playful™</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --inky:    #1C252E;
+  --orangey: #FFBF00;
+  --splashy: #C9EBFF;
+  --milky:   #FFFFF7;
+  --peachy:  #FF7454;
+  --limey:   #C7FF7E;
+  --bcurr:   #748EFF;
+  --page:    #F0EEE8;
+  --accent:  #748EFF; /* client accent — swap per deployment */
+  --f: 'Inter', sans-serif;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--f); background: var(--page); color: var(--inky); min-height: 100vh; }
+
+/* ═══════════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════════ */
+#login-screen {
+  position: fixed; inset: 0; z-index: 9000;
+  background: var(--inky);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .4s ease, transform .4s ease;
+}
+#login-screen.out { opacity: 0; pointer-events: none; transform: scale(.98); }
+
+.login-shapes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.ls { position: absolute; border-radius: 3px; }
+.ls.c { border-radius: 50%; }
+
+.login-card {
+  background: var(--milky); border-radius: 20px;
+  padding: 52px 48px 44px; width: 100%; max-width: 440px;
+  position: relative; z-index: 2;
+  box-shadow: 0 32px 80px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.2);
+}
+
+.login-logos {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 36px; padding-bottom: 32px;
+  border-bottom: 1px solid rgba(28,37,46,.1);
+}
+.login-logos .ldivider { width: 1px; height: 44px; background: rgba(28,37,46,.15); }
+
+.playful-wm { font-family: var(--f); font-weight: 900; font-size: 24px; color: var(--inky); letter-spacing: -.5px; line-height: 1; }
+.playful-wm em { color: var(--orangey); font-style: normal; }
+.playful-sub { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(28,37,46,.4); margin-top: 4px; }
+
+.client-placeholder {
+  text-align: right;
+}
+.client-placeholder-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(28,37,46,.3); margin-bottom: 5px;
+}
+.client-placeholder-name {
+  font-size: 15px; font-weight: 900; color: var(--inky); letter-spacing: -.3px;
+  font-style: italic; opacity: .4;
+}
+
+.portal-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(28,37,46,.35); margin-bottom: 8px;
+}
+.login-card h1 {
+  font-size: 28px; font-weight: 900; color: var(--inky);
+  letter-spacing: -.8px; margin-bottom: 32px; line-height: 1.05;
+}
+
+.field-group { margin-bottom: 14px; }
+.field-group label {
+  display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(28,37,46,.45); margin-bottom: 8px;
+}
+.field-group input {
+  width: 100%; padding: 14px 16px;
+  border: 2px solid rgba(28,37,46,.15); border-radius: 10px;
+  font-family: var(--f); font-size: 15px; color: var(--inky);
+  background: white; outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
+}
+.field-group input:focus { border-color: var(--orangey); }
+
+/* Cookie consent */
+.cookie-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-top: 20px; padding: 16px 18px; border-radius: 10px;
+  background: rgba(28,37,46,.04); border: 1.5px solid rgba(28,37,46,.1);
+  transition: border-color .2s;
+}
+.cookie-row.checked { border-color: var(--orangey); background: rgba(255,191,0,.07); }
+
+.cookie-checkbox-wrap { flex-shrink: 0; padding-top: 1px; }
+.cookie-checkbox {
+  width: 20px; height: 20px; border-radius: 5px;
+  border: 2px solid rgba(28,37,46,.25); background: white;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color .2s, background .2s;
+  flex-shrink: 0;
+}
+.cookie-checkbox.on { background: var(--orangey); border-color: var(--orangey); }
+.cookie-checkbox svg { opacity: 0; transition: opacity .15s; }
+.cookie-checkbox.on svg { opacity: 1; }
+
+.cookie-text { flex: 1; }
+.cookie-text p { font-size: 12px; line-height: 1.65; color: rgba(28,37,46,.6); }
+.cookie-text strong { color: var(--inky); font-weight: 700; }
+.cookie-text a { color: var(--inky); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+
+.btn-login {
+  width: 100%; margin-top: 16px; padding: 16px;
+  background: var(--inky); color: var(--orangey);
+  font-family: var(--f); font-size: 12px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  border: none; border-radius: 10px; cursor: pointer; transition: background .2s, opacity .2s;
+  opacity: .35; pointer-events: none;
+}
+.btn-login.ready { opacity: 1; pointer-events: all; }
+.btn-login.ready:hover { background: #2d3d4d; }
+
+.demo-row {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(28,37,46,.1);
+}
+.demo-row span { font-size: 11px; font-weight: 600; color: rgba(28,37,46,.35); }
+.btn-demo {
+  font-family: var(--f); font-size: 10px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  background: var(--orangey); color: var(--inky);
+  border: none; border-radius: 100px; padding: 9px 20px; cursor: pointer; transition: background .2s;
+}
+.btn-demo:hover { background: #ffd040; }
+
+.assist-line {
+  margin-top: 16px; text-align: center;
+  font-size: 11px; color: rgba(255,255,255,.28); line-height: 1.6;
+}
+.assist-line a { color: rgba(255,255,255,.45); text-decoration: none; font-weight: 600; transition: color .2s; }
+.assist-line a:hover { color: var(--orangey); }
+
+.login-error {
+  margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+  background: rgba(255,100,80,.12); font-size: 13px;
+  color: #c0381a; font-weight: 600; display: none;
+}
+
+/* ═══════════════════════════════════════
+   PORTAL SHELL
+═══════════════════════════════════════ */
+#portal { display: none; }
+#portal.visible { display: block; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--inky);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 52px; height: 58px;
+}
+.nav-left { display: flex; align-items: center; gap: 20px; }
+.nav-brand { font-weight: 900; font-size: 17px; color: var(--orangey); letter-spacing: -.3px; }
+.nav-sep { width: 1px; height: 26px; background: rgba(255,255,255,.18); }
+.nav-client-wrap { display: flex; align-items: center; gap: 8px; }
+.nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.nav-client-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.45); font-style: italic; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-tag { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.22); }
+.btn-logout {
+  font-family: var(--f); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  background: rgba(255,255,255,.07); color: rgba(255,255,255,.45);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 100px;
+  padding: 7px 18px; cursor: pointer; transition: all .2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,.13); color: rgba(255,255,255,.8); }
+
+/* HERO */
+.hero {
+  background: var(--inky); position: relative; overflow: hidden; padding: 76px 52px 68px;
+}
+.hero-sf { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.hs { position: absolute; border-radius: 3px; }
+.hs.c { border-radius: 50%; }
+.hero-content { position: relative; z-index: 2; max-width: 680px; }
+.hero-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,.3); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-eyebrow::before { content: ""; width: 28px; height: 3px; background: var(--accent); border-radius: 2px; flex-shrink: 0; }
+.hero h1 {
+  font-size: clamp(40px, 5.5vw, 66px); font-weight: 900; color: white;
+  letter-spacing: -2.5px; line-height: .93; margin-bottom: 22px;
+}
+.hero h1 em { color: var(--orangey); font-style: normal; }
+.hero-sub { font-size: 16px; color: rgba(255,255,255,.5); line-height: 1.75; max-width: 500px; }
+.hero-pills { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 32px; }
+.pill {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.07); border-radius: 100px; padding: 8px 16px;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.5); letter-spacing: .3px;
+}
+.pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* STRIPE */
+.stripe { height: 5px; background: linear-gradient(90deg, var(--accent) 0%, var(--orangey) 50%, var(--splashy) 100%); }
+
+/* DIRECTORY */
+.directory { padding: 64px 52px 80px; }
+.dir-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(28,37,46,.35); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 12px;
+}
+.dir-eyebrow::before { content: ""; width: 28px; height: 3px; background: var(--orangey); border-radius: 2px; }
+.dir-heading { font-size: clamp(28px, 3.5vw, 40px); font-weight: 900; color: var(--inky); letter-spacing: -1.2px; margin-bottom: 40px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+.pcard {
+  background: white; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(28,37,46,.06), 0 1px 3px rgba(28,37,46,.04);
+  transition: box-shadow .25s ease, transform .25s ease;
+  cursor: pointer;
+}
+.pcard:hover { box-shadow: 0 10px 44px rgba(28,37,46,.12); transform: translateY(-3px); }
+
+.pcard-top { padding: 28px 28px 22px; }
+.pcard-num { font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: rgba(28,37,46,.2); margin-bottom: 18px; }
+.pcard-icon {
+  width: 46px; height: 46px; border-radius: 12px; margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pcard-icon svg { width: 22px; height: 22px; }
+.pcard-title { font-size: 21px; font-weight: 900; color: var(--inky); letter-spacing: -.5px; margin-bottom: 8px; }
+.pcard-desc { font-size: 14px; color: rgba(28,37,46,.48); line-height: 1.65; }
+
+.pcard-foot {
+  padding: 16px 28px; border-top: 1px solid rgba(28,37,46,.07);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(28,37,46,.02);
+}
+.pcard-tag { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(28,37,46,.28); }
+.pcard-arr {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--inky);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background .2s;
+}
+.pcard:hover .pcard-arr { background: var(--orangey); }
+.pcard-arr svg { width: 14px; height: 14px; }
+.pcard-arr svg path { stroke: white; }
+.pcard:hover .pcard-arr svg path { stroke: var(--inky); }
+
+/* FOOTER */
+footer {
+  background: var(--inky); padding: 36px 52px;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+}
+.foot-brand { font-weight: 900; font-size: 16px; color: var(--orangey); }
+.foot-info { font-size: 11px; color: rgba(255,255,255,.25); line-height: 1.7; }
+.foot-info a { color: rgba(255,255,255,.4); text-decoration: none; }
+.foot-info a:hover { color: var(--orangey); }
+
+/* ═══════════════════════════════════════
+   PANEL OVERLAYS
+═══════════════════════════════════════ */
+.panel {
+  position: fixed; inset: 0; z-index: 5000;
+  display: flex; justify-content: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s ease;
+}
+.panel.open { opacity: 1; pointer-events: all; }
+
+.panel-bg {
+  position: absolute; inset: 0;
+  background: rgba(28,37,46,.65); backdrop-filter: blur(6px);
+}
+
+.panel-drawer {
+  position: relative; z-index: 2;
+  width: min(740px, 100vw); height: 100vh;
+  background: var(--milky); overflow-y: auto;
+  transform: translateX(48px); transition: transform .35s ease;
+  display: flex; flex-direction: column;
+}
+.panel.open .panel-drawer { transform: translateX(0); }
+
+.ph {
+  background: var(--inky); padding: 28px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10; flex-shrink: 0;
+}
+.ph-num { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: 5px; }
+.ph-title { font-size: 22px; font-weight: 900; color: white; letter-spacing: -.5px; }
+.btn-x {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(255,255,255,.1); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: rgba(255,255,255,.55); line-height: 1; transition: background .2s;
+}
+.btn-x:hover { background: rgba(255,255,255,.2); color: white; }
+
+.pb { padding: 44px 36px; flex: 1; }
+
+/* Panel inner styles */
+.psec { margin-bottom: 44px; }
+.psec:last-child { margin-bottom: 0; }
+.pslabel {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(28,37,46,.32); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.pslabel::before { content: ""; width: 24px; height: 3px; background: var(--orangey); border-radius: 2px; flex-shrink: 0; }
+.pshead { font-size: 26px; font-weight: 900; color: var(--inky); letter-spacing: -.7px; margin-bottom: 16px; line-height: 1.05; }
+.psbody { font-size: 15px; line-height: 1.82; color: rgba(28,37,46,.72); margin-bottom: 14px; }
+
+.callout {
+  background: var(--orangey); border-radius: 12px; padding: 20px 24px; margin: 22px 0;
+}
+.callout p { font-size: 15px; font-weight: 700; color: var(--inky); line-height: 1.65; }
+
+.chips { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.chip {
+  background: white; border-radius: 10px; padding: 14px 18px;
+  border: 1px solid rgba(28,37,46,.1); flex: 1; min-width: 110px;
+}
+.chip-lbl { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(28,37,46,.32); margin-bottom: 5px; }
+.chip-val { font-size: 14px; font-weight: 800; color: var(--inky); }
+
+.docs { list-style: none; margin-top: 4px; }
+.docs li {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-radius: 10px; margin-bottom: 8px;
+  background: white; border: 1.5px solid rgba(28,37,46,.07);
+  transition: border-color .2s;
+}
+.docs li:hover { border-color: var(--orangey); }
+.doc-l { display: flex; align-items: center; gap: 12px; }
+.doc-ico { font-size: 18px; line-height: 1; }
+.doc-n { font-size: 14px; font-weight: 700; color: var(--inky); margin-bottom: 2px; }
+.doc-s { font-size: 11px; color: rgba(28,37,46,.38); }
+.badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+  padding: 5px 11px; border-radius: 100px; white-space: nowrap;
+}
+.badge.live  { background: rgba(199,255,126,.35); color: #1f6a00; }
+.badge.draft { background: rgba(255,191,0,.22);   color: #7a5700; }
+.badge.pend  { background: rgba(255,100,80,.12);  color: #b03a20; }
+
+.tl { margin-top: 4px; }
+.tli { display: flex; gap: 16px; margin-bottom: 22px; }
+.tli:last-child { margin-bottom: 0; }
+.tlm { display: flex; flex-direction: column; align-items: center; width: 18px; flex-shrink: 0; padding-top: 2px; }
+.tldot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; }
+.tldot.done { background: var(--limey);   border: 2px solid #4da500; }
+.tldot.now  { background: var(--orangey); border: 2px solid #c89a00; }
+.tldot.next { background: white;          border: 2px solid rgba(28,37,46,.2); }
+.tlline { flex: 1; width: 2px; background: rgba(28,37,46,.1); margin-top: 5px; }
+.tld { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(28,37,46,.32); margin-bottom: 3px; }
+.tlt { font-size: 14px; font-weight: 700; color: var(--inky); margin-bottom: 3px; }
+.tln { font-size: 13px; color: rgba(28,37,46,.5); line-height: 1.5; }
+
+.ccard {
+  background: var(--inky); border-radius: 14px; padding: 22px 26px;
+  display: flex; align-items: center; gap: 18px; margin-bottom: 12px;
+  text-decoration: none; transition: background .2s;
+}
+.ccard:hover { background: #253240; }
+.ccard:last-child { margin-bottom: 0; }
+.cavatar {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--orangey);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; font-weight: 900; color: var(--inky); flex-shrink: 0;
+}
+.cname  { font-size: 16px; font-weight: 800; color: white; margin-bottom: 2px; }
+.crole  { font-size: 12px; color: rgba(255,255,255,.38); margin-bottom: 5px; }
+.cemail { font-size: 13px; color: var(--orangey); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  nav { padding: 0 20px; }
+  .nav-tag { display: none; }
+  .hero, .directory { padding-left: 20px; padding-right: 20px; }
+  footer { padding: 28px 20px; }
+  .pb { padding: 28px 20px; }
+  .ph { padding: 20px; }
+  .login-card { padding: 36px 24px 30px; margin: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-shapes">
+    <div class="ls c" style="width:260px;height:260px;background:#748EFF;opacity:.08;top:-100px;left:-80px;"></div>
+    <div class="ls"   style="width:80px;height:80px;background:#FFBF00;opacity:.14;bottom:130px;right:140px;transform:rotate(20deg);"></div>
+    <div class="ls c" style="width:56px;height:56px;background:#C9EBFF;opacity:.18;top:220px;right:80px;"></div>
+    <div class="ls"   style="width:44px;height:44px;background:#C7FF7E;opacity:.18;bottom:200px;left:100px;transform:rotate(45deg);"></div>
+    <div class="ls"   style="width:140px;height:28px;background:#748EFF;opacity:.1;top:280px;left:40px;border-radius:4px;"></div>
+    <div class="ls c" style="width:360px;height:360px;background:#FFBF00;opacity:.04;bottom:-140px;right:-100px;"></div>
+    <div class="ls c" style="width:60px;height:60px;background:#FF7454;opacity:.12;top:100px;right:200px;"></div>
+  </div>
+
+  <div class="login-card">
+    <!-- Logos -->
+    <div class="login-logos">
+      <div>
+        <div class="playful-wm">playful<em>™</em></div>
+        <div class="playful-sub">Client Portal</div>
+      </div>
+      <div class="ldivider"></div>
+      <div class="client-placeholder">
+        <div class="client-placeholder-label">Client</div>
+        <div class="client-placeholder-name">[Client Name]</div>
+      </div>
+    </div>
+
+    <div class="portal-label">Secure access</div>
+    <h1>Sign in to your<br>client portal.</h1>
+
+    <div class="field-group">
+      <label>Client ID</label>
+      <input type="text" id="fid" value="CLIENT-001" placeholder="Your client ID" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label>Password</label>
+      <input type="password" id="fpw" value="Portal2025" placeholder="Your password">
+    </div>
+
+    <!-- Cookie / data consent -->
+    <div class="cookie-row" id="cookie-row" onclick="toggleCookie()">
+      <div class="cookie-checkbox-wrap">
+        <div class="cookie-checkbox" id="cookie-box">
+          <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+            <path d="M1 4L4.2 7.5L10 1" stroke="#1C252E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cookie-text">
+        <p><strong>I agree to cookies and data sharing.</strong> Playful uses essential cookies to operate this portal and may store access logs in line with our <a href="https://makeitplayful.com" target="_blank" onclick="event.stopPropagation()">Privacy Policy</a>. No data is shared with third parties.</p>
+      </div>
+    </div>
+
+    <div class="login-error" id="lerr">Incorrect credentials — please try again.</div>
+
+    <button class="btn-login" id="btn-signin" onclick="doLogin()">Sign in →</button>
+
+    <div class="demo-row">
+      <span>Demo mode</span>
+      <button class="btn-demo" onclick="enterPortal()">Skip to demo ↗</button>
+    </div>
+  </div>
+
+  <!-- Assistance subtext — sits outside the card, below it -->
+  <div class="assist-line" style="position:absolute;bottom:32px;left:0;right:0;text-align:center;">
+    For assistance contact <a href="mailto:portal@makeitplayful.com">portal@makeitplayful.com</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PORTAL
+═══════════════════════════════════════ -->
+<div id="portal">
+
+  <nav>
+    <div class="nav-left">
+      <span class="nav-brand">playful™</span>
+      <div class="nav-sep"></div>
+      <div class="nav-client-wrap">
+        <div class="nav-dot"></div>
+        <span class="nav-client-name">[Client Name]</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <span class="nav-tag">Client Portal</span>
+      <button class="btn-logout" onclick="doLogout()">Log out</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-sf">
+      <div class="hs"   style="width:100px;height:100px;background:#748EFF;opacity:.18;top:-20px;right:240px;transform:rotate(14deg);"></div>
+      <div class="hs c" style="width:74px;height:74px;background:#FFBF00;opacity:.15;bottom:50px;right:120px;"></div>
+      <div class="hs"   style="width:180px;height:44px;background:#748EFF;opacity:.1;top:90px;right:80px;border-radius:4px;"></div>
+      <div class="hs c" style="width:38px;height:38px;background:#C9EBFF;opacity:.25;bottom:80px;right:340px;"></div>
+      <div class="hs"   style="width:52px;height:52px;background:#C7FF7E;opacity:.14;top:40px;right:440px;transform:rotate(45deg);border-radius:3px;"></div>
+      <div class="hs c" style="width:22px;height:22px;background:#FF7454;opacity:.3;top:160px;right:200px;"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">[Client Name] · PLY-000</div>
+      <h1>Your<br><em>project hub.</em></h1>
+      <p class="hero-sub">Everything for your project — documents, progress updates and contacts — all in one place.</p>
+      <div class="hero-pills">
+        <div class="pill"><div class="pill-dot" style="background:#C7FF7E;"></div>Project active</div>
+        <div class="pill"><div class="pill-dot" style="background:#FFBF00;"></div>Phase in progress</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stripe"></div>
+
+  <div class="directory">
+    <div class="dir-eyebrow">Your documents</div>
+    <div class="dir-heading">What would you like to explore?</div>
+
+    <div class="cards">
+
+      <!-- 01 Welcome -->
+      <div class="pcard" onclick="openPanel('welcome')">
+        <div class="pcard-top">
+          <div class="pcard-num">01</div>
+          <div class="pcard-icon" style="background:rgba(255,191,0,.15);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#FFBF00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="pcard-title">Welcome</div>
+          <div class="pcard-desc">A note from the team and a guide to getting the most from this portal.</div>
+        </div>
+        <div class="pcard-foot">
+          <span class="pcard-tag">Introduction</span>
+          <div class="pcard-arr">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 About Playful -->
+      <div class="pcard" onclick="openPanel('about')">
+        <div class="pcard-top">
+          <div class="pcard-num">02</div>
+          <div class="pcard-icon" style="background:rgba(201,235,255,.45);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1C252E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div class="pcard-title">About Playful</div>
+          <div class="pcard-desc">Who we are, what we build, and why play is at the centre of everything we do.</div>
+        </div>
+        <div class="pcard-foot">
+          <span class="pcard-tag">Company</span>
+          <div class="pcard-arr">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 Your Project -->
+      <div class="pcard" onclick="openPanel('project')">
+        <div class="pcard-top">
+          <div class="pcard-num">03</div>
+          <div class="pcard-icon" style="background:rgba(116,142,255,.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#748EFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <line x1="10" y1="9" x2="8" y2="9"/>
+            </svg>
+          </div>
+          <div class="pcard-title">Your Project</div>
+          <div class="pcard-desc">PLY-000 — timeline, documents, current status and your contacts at Playful.</div>
+        </div>
+        <div class="pcard-foot">
+          <span class="pcard-tag">PLY-000 · Active</span>
+          <div class="pcard-arr">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="foot-brand">playful™</div>
+    <div class="foot-info">
+      Castleton Mill, Castleton Close, Leeds LS12 2DS<br>
+      <a href="mailto:hello@makeitplayful.com">hello@makeitplayful.com</a> · <a href="https://makeitplayful.com" target="_blank">makeitplayful.com</a>
+    </div>
+    <div class="foot-info">© 2025 Playful Ltd</div>
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL: WELCOME
+═══════════════════════════════════════ -->
+<div class="panel" id="panel-welcome">
+  <div class="panel-bg" onclick="closePanel('welcome')"></div>
+  <div class="panel-drawer">
+    <div class="ph">
+      <div>
+        <div class="ph-num">01 / Welcome</div>
+        <div class="ph-title">Hello from Playful.</div>
+      </div>
+      <button class="btn-x" onclick="closePanel('welcome')">×</button>
+    </div>
+    <div class="pb">
+
+      <div class="psec">
+        <div class="pslabel">A note from the team</div>
+        <div class="pshead">Good to have you here.</div>
+        <p class="psbody">This portal is your dedicated space for everything to do with your project with Playful. We've set it up so you have one place to find documents, track progress and get in touch — without the back-and-forth of email chains.</p>
+        <p class="psbody">Use the three sections in the directory to navigate. If anything is missing, unclear or out of date, contact Jon directly using the details at the bottom of this panel.</p>
+        <div class="callout">
+          <p>This is a live portal. We update it as the project moves forward — so it's worth checking back in regularly rather than relying on what you saw last time.</p>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">What's in here</div>
+        <div class="pshead">Three sections.</div>
+        <p class="psbody">The portal is structured around three areas. More will be added as the project develops — including sign-off packs, install plans and handover documentation.</p>
+        <div class="chips">
+          <div class="chip"><div class="chip-lbl">Section 01</div><div class="chip-val">Welcome</div></div>
+          <div class="chip"><div class="chip-lbl">Section 02</div><div class="chip-val">About Playful</div></div>
+          <div class="chip"><div class="chip-lbl">Section 03</div><div class="chip-val">Your Project</div></div>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">Need something?</div>
+        <div class="pshead">Talk to us directly.</div>
+        <a class="ccard" href="mailto:jon.eden@makeitplayful.com">
+          <div class="cavatar">J</div>
+          <div>
+            <div class="cname">Jon Eden</div>
+            <div class="crole">Project Lead · Co-founder, Playful Ltd</div>
+            <div class="cemail">jon.eden@makeitplayful.com</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL: ABOUT PLAYFUL
+═══════════════════════════════════════ -->
+<div class="panel" id="panel-about">
+  <div class="panel-bg" onclick="closePanel('about')"></div>
+  <div class="panel-drawer">
+    <div class="ph">
+      <div>
+        <div class="ph-num">02 / About</div>
+        <div class="ph-title">About Playful.</div>
+      </div>
+      <button class="btn-x" onclick="closePanel('about')">×</button>
+    </div>
+    <div class="pb">
+
+      <div class="psec">
+        <div class="pslabel">Who we are</div>
+        <div class="pshead">We design and build play for public spaces.</div>
+        <p class="psbody">Playful is a Leeds-based creative company specialising in interactive play installations and visitor experiences. We work with museums, galleries, heritage sites, cultural venues and public spaces — anywhere that wants to give people a real reason to engage.</p>
+        <p class="psbody">We're not an events company. We're not a soft play supplier. We design and manufacture physical interactive experiences that are built to last, built to perform and built to change how people feel about a space.</p>
+        <div class="callout">
+          <p>Play isn't decorative. It drives dwell time, deepens engagement and brings people back. That's the business case — and it's one we've made work for clients across the UK.</p>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">What we make</div>
+        <div class="pshead">Products built for real spaces and real people.</div>
+        <p class="psbody">Our product range runs from compact modular units through to large-scale bespoke commissions. Everything is designed and made in-house at our Leeds workshop, which means we control quality at every stage.</p>
+        <div class="chips">
+          <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">Playshapes</div></div>
+          <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">Playwall</div></div>
+          <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">Playbox</div></div>
+        </div>
+        <div class="chips" style="margin-top:10px;">
+          <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">Mini Playbox</div></div>
+          <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">Playcafé</div></div>
+          <div class="chip"><div class="chip-lbl">Product</div><div class="chip-val">Bespoke</div></div>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">The team</div>
+        <div class="pshead">Three founders. No layers.</div>
+        <p class="psbody">Playful was founded by Jon Eden, Beth Cooper and Dirk Mischendahl. All three work directly on every project. There's no account management layer between you and the people actually doing the work.</p>
+        <div class="chips">
+          <div class="chip"><div class="chip-lbl">Co-founder</div><div class="chip-val">Jon Eden</div></div>
+          <div class="chip"><div class="chip-lbl">Co-founder</div><div class="chip-val">Beth Cooper</div></div>
+          <div class="chip"><div class="chip-lbl">Co-founder</div><div class="chip-val">Dirk Mischendahl</div></div>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">Find us</div>
+        <a class="ccard" href="https://makeitplayful.com" target="_blank">
+          <div class="cavatar" style="background:var(--splashy);color:var(--inky);font-size:13px;font-weight:800;letter-spacing:-.5px;">WEB</div>
+          <div>
+            <div class="cname">makeitplayful.com</div>
+            <div class="crole">Castleton Mill, Castleton Close, Leeds LS12 2DS</div>
+            <div class="cemail">hello@makeitplayful.com</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL: YOUR PROJECT
+═══════════════════════════════════════ -->
+<div class="panel" id="panel-project">
+  <div class="panel-bg" onclick="closePanel('project')"></div>
+  <div class="panel-drawer">
+    <div class="ph" style="background:linear-gradient(135deg, #1C252E 0%, #1a1c2e 100%);">
+      <div>
+        <div class="ph-num">03 / Project · PLY-000</div>
+        <div class="ph-title">Your Project.</div>
+      </div>
+      <button class="btn-x" onclick="closePanel('project')">×</button>
+    </div>
+    <div class="pb">
+
+      <div class="psec">
+        <div class="pslabel">Project overview</div>
+        <div class="pshead">What we're building and why.</div>
+        <p class="psbody">PLY-000 is your project reference. This section will be updated with a full project description, scope and key objectives once the brief has been confirmed and agreed with your team.</p>
+        <p class="psbody">The installation is designed around your space, your audience and your operational requirements. Everything is made in-house at our Leeds workshop.</p>
+        <div class="chips">
+          <div class="chip"><div class="chip-lbl">Reference</div><div class="chip-val">PLY-000</div></div>
+          <div class="chip"><div class="chip-lbl">Status</div><div class="chip-val" style="color:#1f6a00;">Active</div></div>
+          <div class="chip"><div class="chip-lbl">Phase</div><div class="chip-val">TBC</div></div>
+        </div>
+        <div class="chips" style="margin-top:10px;">
+          <div class="chip"><div class="chip-lbl">Location</div><div class="chip-val">[Location]</div></div>
+          <div class="chip"><div class="chip-lbl">Install target</div><div class="chip-val">[Date]</div></div>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">Project timeline</div>
+        <div class="pshead">Where we are right now.</div>
+        <div class="tl">
+          <div class="tli">
+            <div class="tlm"><div class="tldot done"></div><div class="tlline"></div></div>
+            <div>
+              <div class="tld">[Date] · Complete</div>
+              <div class="tlt">Phase 1 — Discovery &amp; Brief</div>
+              <div class="tln">Initial conversations completed. Brief confirmed and direction agreed.</div>
+            </div>
+          </div>
+          <div class="tli">
+            <div class="tlm"><div class="tldot now"></div><div class="tlline"></div></div>
+            <div>
+              <div class="tld">[Date range] · In progress</div>
+              <div class="tlt">Phase 2 — Design Development</div>
+              <div class="tln">Design work underway. Material specification and structural sign-off to follow.</div>
+            </div>
+          </div>
+          <div class="tli">
+            <div class="tlm"><div class="tldot next"></div><div class="tlline"></div></div>
+            <div>
+              <div class="tld">[Date range] · Upcoming</div>
+              <div class="tlt">Phase 3 — Manufacture &amp; Build</div>
+              <div class="tln">Production at our Leeds workshop. Client review points at 50% and 90% completion.</div>
+            </div>
+          </div>
+          <div class="tli">
+            <div class="tlm"><div class="tldot next"></div></div>
+            <div>
+              <div class="tld">[Date] · Target</div>
+              <div class="tlt">Phase 4 — Installation &amp; Handover</div>
+              <div class="tln">On-site installation, staff briefing and formal handover pack issued.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">Project documents</div>
+        <div class="pshead">Current files.</div>
+        <ul class="docs">
+          <li>
+            <div class="doc-l">
+              <span class="doc-ico">📄</span>
+              <div><div class="doc-n">Project Brief &amp; Scope</div><div class="doc-s">PDF · [Date issued]</div></div>
+            </div>
+            <span class="badge live">Live</span>
+          </li>
+          <li>
+            <div class="doc-l">
+              <span class="doc-ico">🎨</span>
+              <div><div class="doc-n">Concept Design Pack</div><div class="doc-s">PDF · [Date issued]</div></div>
+            </div>
+            <span class="badge draft">Draft</span>
+          </li>
+          <li>
+            <div class="doc-l">
+              <span class="doc-ico">📐</span>
+              <div><div class="doc-n">Technical Design Drawings</div><div class="doc-s">PDF · In preparation</div></div>
+            </div>
+            <span class="badge pend">Pending</span>
+          </li>
+          <li>
+            <div class="doc-l">
+              <span class="doc-ico">🗓</span>
+              <div><div class="doc-n">Project Programme</div><div class="doc-s">PDF · [Date issued]</div></div>
+            </div>
+            <span class="badge live">Live</span>
+          </li>
+          <li>
+            <div class="doc-l">
+              <span class="doc-ico">📋</span>
+              <div><div class="doc-n">Risk &amp; Safety Assessment</div><div class="doc-s">PDF · Awaiting sign-off</div></div>
+            </div>
+            <span class="badge pend">Pending</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="psec">
+        <div class="pslabel">Your contacts at Playful</div>
+        <a class="ccard" href="mailto:jon.eden@makeitplayful.com">
+          <div class="cavatar">J</div>
+          <div>
+            <div class="cname">Jon Eden</div>
+            <div class="crole">Project Lead · Co-founder</div>
+            <div class="cemail">jon.eden@makeitplayful.com</div>
+          </div>
+        </a>
+        <a class="ccard" href="mailto:dirk.mischendahl@makeitplayful.com">
+          <div class="cavatar" style="background:var(--splashy);color:var(--inky);">D</div>
+          <div>
+            <div class="cname">Dirk Mischendahl</div>
+            <div class="crole">Design Lead · Co-founder</div>
+            <div class="cemail">dirk.mischendahl@makeitplayful.com</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── COOKIE TOGGLE ─────────────────────── */
+let cookieAccepted = false;
+
+function toggleCookie() {
+  cookieAccepted = !cookieAccepted;
+  const box = document.getElementById('cookie-box');
+  const row = document.getElementById('cookie-row');
+  const btn = document.getElementById('btn-signin');
+  box.classList.toggle('on', cookieAccepted);
+  row.classList.toggle('checked', cookieAccepted);
+  btn.classList.toggle('ready', cookieAccepted);
+}
+
+/* ─── AUTH ──────────────────────────────── */
+const CREDS = { id: 'CLIENT-001', pw: 'Portal2025' };
+
+function doLogin() {
+  if (!cookieAccepted) return;
+  const id  = document.getElementById('fid').value.trim();
+  const pw  = document.getElementById('fpw').value.trim();
+  const err = document.getElementById('lerr');
+  if (id === CREDS.id && pw === CREDS.pw) {
+    enterPortal();
+  } else {
+    err.style.display = 'block';
+    setTimeout(() => { err.style.display = 'none'; }, 3200);
+  }
+}
+
+function enterPortal() {
+  const ls = document.getElementById('login-screen');
+  const p  = document.getElementById('portal');
+  ls.classList.add('out');
+  p.classList.add('visible');
+  setTimeout(() => { ls.style.display = 'none'; }, 420);
+}
+
+function doLogout() {
+  const ls = document.getElementById('login-screen');
+  const p  = document.getElementById('portal');
+  ls.style.display = 'flex';
+  ls.style.opacity = '0';
+  p.classList.remove('visible');
+  ['welcome','about','project'].forEach(closePanel);
+  requestAnimationFrame(() => {
+    ls.classList.remove('out');
+    ls.style.opacity = '';
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const ls = document.getElementById('login-screen');
+    if (ls && ls.style.display !== 'none' && !ls.classList.contains('out')) doLogin();
+  }
+});
+
+/* ─── PANELS ────────────────────────────── */
+function openPanel(id) {
+  const el = document.getElementById('panel-' + id);
+  if (el) { el.classList.add('open'); document.body.style.overflow = 'hidden'; }
+}
+function closePanel(id) {
+  const el = document.getElementById('panel-' + id);
+  if (el) el.classList.remove('open');
+  const anyOpen = ['welcome','about','project'].some(i =>
+    document.getElementById('panel-' + i)?.classList.contains('open')
+  );
+  if (!anyOpen) document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') ['welcome','about','project'].forEach(closePanel);
+});
+</script>
+</body>
+</html>
