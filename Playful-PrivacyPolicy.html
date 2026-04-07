@@ -31,31 +31,33 @@ body {
 /* ── NAV ───────────────────────────────────── */
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: var(--inky);
-  padding: 0 48px;
-  height: 56px;
+  background: #1C252E;
+  padding: 0 48px; height: 56px;
   display: flex; align-items: center; justify-content: space-between;
 }
 .nav-logo svg { display:block; height:22px; width:auto; }
+.nav-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
 .nav-close {
   font-family: var(--f);
   font-size: 11px; font-weight: 700;
   letter-spacing: 1.5px; text-transform: uppercase;
-  background: var(--orangey); color: var(--inky);
+  background: #FFBF00; color: #1C252E;
   border: none; cursor: pointer;
   padding: 8px 20px; border-radius: 100px;
   display: none;
 }
 .nav-close:hover { background: #FFD040; }
 .popup-mode .nav-close { display: block; }
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 2.5px; text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-}
 
 /* ── HERO ──────────────────────────────────── */
 .hero {
-  background: var(--inky);
+  background: #1C252E;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
   padding: 80px 48px 88px;
   position: relative;
   overflow: hidden;
@@ -92,14 +94,14 @@ nav {
 .hero h1 span { color: var(--orangey); }
 .hero-sub {
   font-size: 18px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.85);
   max-width: 520px;
   margin-bottom: 32px;
 }
 .hero-meta {
   font-size: 12px; font-weight: 600;
   letter-spacing: 1px; text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.55);
 }
 
 /* ── CONTENTS ─────────────────────────────── */
@@ -228,7 +230,7 @@ main { max-width: 860px; margin: 0 auto; padding: 64px 48px 96px; }
   font-size: 14px;
 }
 .retention-table thead tr {
-  background: var(--inky);
+  background: #1C252E;
 }
 .retention-table thead th {
   padding: 14px 20px;
@@ -277,7 +279,7 @@ a.email-link:hover { color: var(--orangey); }
 
 /* ── FOOTER ───────────────────────────────── */
 footer {
-  background: var(--inky);
+  background: #1C252E;
   padding: 48px;
 }
 .footer-inner {
@@ -289,13 +291,13 @@ footer {
 .footer-logo svg { height: 18px; width: auto; display:block; margin-bottom: 16px; }
 .footer-details {
   font-size: 12px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.65);
   line-height: 1.8;
 }
-.footer-details strong { color: rgba(255,255,255,0.55); font-weight: 600; }
+.footer-details strong { color: rgba(255,255,255,0.85); font-weight: 600; }
 .footer-contact {
   font-size: 12px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.65);
   text-align: right;
 }
 .footer-contact a {
@@ -313,7 +315,7 @@ footer {
   border-top: 1px solid rgba(255,255,255,0.08);
   font-size: 11px; font-weight: 700;
   letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.4);
 }
 
 /* ── RESPONSIVE ───────────────────────────── */
