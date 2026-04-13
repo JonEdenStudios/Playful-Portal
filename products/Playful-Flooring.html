@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playful™ — Flooring</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--inky:#1C252E;--orangey:#FFBF00;--splashy:#C9EBFF;--milky:#FFFFF7;--page:#F0EEE8;--f:'Inter',sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:var(--f);background:var(--page);color:var(--inky);font-size:16px;line-height:1.6}
+nav{position:sticky;top:0;z-index:100;background:var(--inky);padding:0 48px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo svg{display:block;height:22px;width:auto}.nav-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.35)}
+.nav-close{font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--orangey);color:var(--inky);border:none;cursor:pointer;padding:8px 20px;border-radius:100px;display:none}
+.nav-close:hover{background:#FFD040}.popup-mode .nav-close{display:block}
+.hero{background:var(--inky);-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:80px 48px 88px;position:relative;overflow:hidden}
+.hero-shape-1{position:absolute;top:-40px;right:80px;width:180px;height:180px;background:var(--orangey);border-radius:50%;opacity:0.12}
+.hero-shape-2{position:absolute;bottom:-30px;right:200px;width:90px;height:90px;background:var(--splashy);transform:rotate(45deg);opacity:0.15}
+.hero-inner{max-width:800px;position:relative;z-index:1}
+.hero-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--orangey);margin-bottom:24px}
+.hero h1{font-size:clamp(36px,5vw,60px);font-weight:900;color:var(--milky);line-height:1.05;margin-bottom:20px}
+.hero h1 span{color:var(--orangey)}.hero-sub{font-size:18px;color:rgba(255,255,255,0.85);max-width:520px;margin-bottom:32px}
+.hero-meta{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55)}
+.contents-wrap{background:var(--milky);border-bottom:1px solid rgba(28,37,46,0.08)}
+.contents{max-width:860px;margin:0 auto;padding:40px 48px}
+.contents-title{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(28,37,46,0.35);margin-bottom:20px}
+.contents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 24px}
+.contents-grid a{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--inky);text-decoration:none;padding:6px 0;border-bottom:1px solid rgba(28,37,46,0.06);transition:color 0.15s}
+.contents-grid a:hover{color:var(--orangey)}.contents-grid a .c-num{font-size:10px;font-weight:900;color:var(--orangey);min-width:20px}
+main{max-width:860px;margin:0 auto;padding:64px 48px 96px}
+.product-section{margin-bottom:64px;scroll-margin-top:72px}
+.section-header{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid var(--inky)}
+.section-num{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--orangey);white-space:nowrap}
+.section-header h2{font-size:22px;font-weight:900;line-height:1.1}
+.product-section p{margin-bottom:16px;color:rgba(28,37,46,0.85)}.product-section p:last-child{margin-bottom:0}
+.product-list{list-style:none;margin:0 0 16px}
+.product-list li{position:relative;padding-left:20px;margin-bottom:10px;color:rgba(28,37,46,0.85);font-size:15px}
+.product-list li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--orangey);border-radius:50%}
+.spec-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.spec-table thead tr{background:var(--inky)}
+.spec-table thead th{padding:14px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+.spec-table tbody tr{border-bottom:1px solid rgba(28,37,46,0.08)}.spec-table tbody tr:nth-child(even){background:rgba(28,37,46,0.03)}
+.spec-table tbody td{padding:14px 20px;vertical-align:top;color:rgba(28,37,46,0.85)}.spec-table tbody td:first-child{font-weight:600;color:var(--inky)}
+.product-divider{border:none;border-top:3px solid var(--inky);margin:64px 0}
+.product-heading{font-size:28px;font-weight:900;margin-bottom:8px}.product-subtitle{font-size:16px;color:rgba(28,37,46,0.6);margin-bottom:32px}
+.contact-card{background:rgba(28,37,46,0.04);border-radius:8px;padding:24px 28px;margin:20px 0;border-left:4px solid var(--orangey)}
+.contact-card h3{font-size:14px;font-weight:800;margin-bottom:10px}
+.contact-card p{font-size:14px;color:rgba(28,37,46,0.7);margin-bottom:6px}
+.contact-card a{color:var(--inky);font-weight:700;text-underline-offset:3px}.contact-card a:hover{color:var(--orangey)}
+.callout{background:var(--orangey);border-radius:8px;padding:24px 28px;margin:28px 0}
+.callout p{color:var(--inky)!important;font-weight:600;margin:0!important}
+footer{background:var(--inky);padding:48px}
+.footer-inner{max-width:860px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:32px}
+.footer-logo svg{height:18px;width:auto;display:block;margin-bottom:16px}
+.footer-details{font-size:12px;color:rgba(255,255,255,0.65);line-height:1.8}.footer-details strong{color:rgba(255,255,255,0.85);font-weight:600}
+.footer-contact{font-size:12px;color:rgba(255,255,255,0.65);text-align:right}
+.footer-contact a{display:block;color:var(--orangey);font-weight:700;font-size:13px;text-decoration:none;margin-bottom:8px}
+.footer-contact a:hover{text-decoration:underline}
+.footer-bottom{max-width:860px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+@media(max-width:640px){nav{padding:0 24px}.hero{padding:56px 24px 64px}.contents{padding:32px 24px}main{padding:48px 24px 72px}footer{padding:40px 24px}.footer-inner{flex-direction:column}.footer-contact{text-align:left}.section-header{flex-direction:column;gap:6px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://makeitplayful.com" aria-label="Playful home">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 273 85" aria-hidden="true"><path fill="#fffff7" d="M62.841.12H51.26v65.821h11.581zM258.913 1.34h2.017v5.63h1.274V1.34h2.017V.116h-5.308zM243.148 1.115c0 3.757-.895 5.592-1.842 7.536-1.004 2.062-2.043 4.193-2.043 8.409s1.039 6.347 2.044 8.408c.946 1.942 1.841 3.777 1.841 7.531 0 3.757-.895 5.593-1.842 7.537-1.004 2.062-2.043 4.194-2.043 8.413s1.039 6.352 2.043 8.413c.947 1.944 1.842 3.78 1.842 7.537v1h12.223v-1c0-4.218-1.039-6.351-2.044-8.412-.947-1.944-1.842-3.781-1.842-7.538s.895-5.594 1.842-7.538c1.005-2.062 2.044-4.194 2.044-8.412 0-4.216-1.039-6.347-2.044-8.408-.947-1.942-1.842-3.777-1.842-7.531 0-3.755.895-5.59 1.842-7.533 1.005-2.062 2.044-4.194 2.044-8.412v-1h-12.223zM270.89.116l-2.115 5.337-2.116-5.337h-1.487V6.97h1.253V2.75l1.645 4.22h1.409l1.645-4.22v4.22h1.254V.116zM25.616.12H.252v65.821h12.037V43.968h13.327c13.053 0 22.17-9.034 22.17-21.97C47.787 9.117 38.67.12 25.616.12m-.092 32.458H12.289V11.42h13.235c6.402 0 10.225 3.955 10.225 10.579s-3.823 10.579-10.225 10.579M222.805 45.795c0 6.26-3.36 9.85-9.22 9.85s-9.221-3.59-9.221-9.85v-28.99h-11.581v29.264c0 12.516 8.165 20.603 20.802 20.603 12.636 0 20.801-8.087 20.801-20.603V16.805h-11.581zM107.462 54.092V34.216c0-9.061-6.926-18.232-20.162-18.232-10.494 0-18.228 6.626-19.245 16.488l-.113 1.103H79.01l.148-.821c.497-2.733 2.928-5.925 8.142-5.925 5.99 0 8.672 3.71 8.672 7.388v1.006H84.288c-12.929 0-17.517 8.2-17.517 15.223 0 9.455 7.252 16.318 17.243 16.318 5.727 0 10.38-1.987 13.182-5.542.968 3.001 3.633 4.721 7.531 4.721h6.84V55.464h-2.642c-1.176-.001-1.463-.271-1.463-1.372m-11.491-7.385c0 4.333-2.726 9.394-10.406 9.394-3.545 0-7.121-1.749-7.121-5.656 0-3.007 2.44-5.107 5.936-5.107h11.592zM166.048 13.154v3.65H158.2v10.661h7.848v38.476h11.582V27.465h10.767V16.804H177.63v-3.012c0-2.18 1.075-3.285 3.196-3.285h8.026V.12h-9.303c-8.201 0-13.501 5.116-13.501 13.034M131.749 47.294l-12.016-30.489h-12.448v2.113l18.35 43.478-8.313 20.494v2.107h11.893l26.808-65.904.073-.182v-2.106h-11.985z"/></svg>
+  </a>
+  <span class="nav-label">Flooring</span>
+  <button class="nav-close" onclick="window.close()">Close &#x2715;</button>
+</nav>
+<script>if(window.opener)document.documentElement.classList.add('popup-mode');</script>
+<header class="hero">
+  <div class="hero-shape-1"></div><div class="hero-shape-2"></div>
+  <div class="hero-inner">
+    <span class="hero-tag">Accessory Products</span>
+    <h1>Flooring.<br><span>The surface beneath play.</span></h1>
+    <p class="hero-sub">Two safety surfacing products: RefoPLAY foam shock pads (sub-surface) and SBR40 recycled rubber tiles (finished surface).</p>
+    <p class="hero-meta">Internal reference &middot; Playful Ltd</p>
+  </div>
+</header>
+<div class="contents-wrap"><div class="contents">
+  <p class="contents-title">Contents</p>
+  <div class="contents-grid">
+    <a href="#s01"><span class="c-num">01</span> RefoPLAY &mdash; what it is</a>
+    <a href="#s02"><span class="c-num">02</span> RefoPLAY &mdash; suited to</a>
+    <a href="#s03"><span class="c-num">03</span> RefoPLAY &mdash; specification</a>
+    <a href="#s04"><span class="c-num">04</span> RefoPLAY &mdash; thickness &amp; fall height</a>
+    <a href="#s05"><span class="c-num">05</span> RefoPLAY &mdash; supplier</a>
+    <a href="#s06"><span class="c-num">06</span> SBR40 &mdash; what it is</a>
+    <a href="#s07"><span class="c-num">07</span> SBR40 &mdash; specification</a>
+  </div>
+</div></div>
+<main>
+  <section class="product-section" id="s01">
+    <div class="section-header"><span class="section-num">01</span><h2>RefoPLAY &mdash; what it is</h2></div>
+    <p>RefoPLAY is a playground safety shock pad system made from recycled agglomerated polyethylene (PE) foam. Manufactured by <strong>APETEK SRL</strong> (Italy) and supplied in the UK through <strong>Kewell Converters</strong> &mdash; the same supplier as the Plastazote foam used in Playshapes.</p>
+    <p>Interlocking foam tiles that sit beneath a surface layer &mdash; synthetic grass, rubber matting or similar &mdash; to provide impact attenuation and fall protection. Vertical drainage structure allows water to pass through (&gt;3,000mm/h), preventing pooling.</p>
+    <p>Tested to <strong>EN 1177:2018</strong> (European standard for impact-attenuating playground surfacing). APETEK is an ESTC full member.</p>
+  </section>
+  <section class="product-section" id="s02">
+    <div class="section-header"><span class="section-num">02</span><h2>RefoPLAY &mdash; what it&rsquo;s suited to</h2></div>
+    <ul class="product-list">
+      <li>Outdoor playgrounds, parks and public play spaces requiring certified fall protection</li>
+      <li>Any installation where the critical fall height of the play equipment determines the required shock pad thickness</li>
+      <li>Projects where drainage performance matters &mdash; the vertical drainage system handles &gt;3,000mm/h</li>
+    </ul>
+    <p>This is a <strong>sub-surface safety layer</strong>, not a stand-alone play surface. Always used in combination with a top surface &mdash; typically synthetic grass, rubber matting or similar.</p>
+  </section>
+  <section class="product-section" id="s03">
+    <div class="section-header"><span class="section-num">03</span><h2>RefoPLAY &mdash; specification</h2></div>
+    <table class="spec-table">
+      <thead><tr><th>Property</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Material</td><td>Recycled agglomerated polyethylene (PE) foam</td></tr>
+        <tr><td>Manufacturer</td><td>APETEK SRL, Corso Italia 19, 24040 Osio Sopra (BG), Italy</td></tr>
+        <tr><td>Density</td><td>80 kg/m&sup3;</td></tr>
+        <tr><td>Weight</td><td>25 kg/m&sup2;</td></tr>
+        <tr><td>Drainage</td><td>Vertical, &gt;3,000mm/h</td></tr>
+        <tr><td>Safety standard</td><td>EN 1177:2018 (HIC test, Method 1) &mdash; independently certified by Labris laboratory</td></tr>
+        <tr><td>Tile format N</td><td>194.6 &times; 101cm &middot; usable area 1.75m&sup2;</td></tr>
+        <tr><td>Tile format S</td><td>225 &times; 90cm &middot; usable area 2.025m&sup2;</td></tr>
+        <tr><td>Tile format RA</td><td>229 &times; 95cm &middot; 2.18m&sup2; (square-cut edges)</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="product-section" id="s04">
+    <div class="section-header"><span class="section-num">04</span><h2>RefoPLAY &mdash; thickness and critical fall height</h2></div>
+    <div class="callout"><p>The required thickness is always determined by the critical fall height of the tallest play equipment on site. Establish this before specifying a product.</p></div>
+    <table class="spec-table">
+      <thead><tr><th>Product</th><th>Thickness</th><th>Critical Fall Height (EN 1177:2018)</th></tr></thead>
+      <tbody>
+        <tr><td>REFO PLAY 25</td><td>25mm</td><td>1.20m</td></tr>
+        <tr><td>REFO PLAY 35</td><td>35mm</td><td>1.50m</td></tr>
+        <tr><td>REFO PLAY 45</td><td>45mm</td><td>2.00m</td></tr>
+        <tr><td>REFO PLAY 50 (25&times;2)</td><td>50mm (two layers of 25mm)</td><td>2.10m</td></tr>
+        <tr><td>REFO PLAY 50</td><td>50mm</td><td>2.40m</td></tr>
+        <tr><td>REFO PLAY 55</td><td>55mm</td><td>2.41m</td></tr>
+        <tr><td>REFO PLAY 70 (35&times;2)</td><td>70mm (two layers of 35mm)</td><td>2.60m</td></tr>
+        <tr><td>REFO PLAY 90 (45&times;2)</td><td>90mm (two layers of 45mm)</td><td>&gt;3.00m</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="product-section" id="s05">
+    <div class="section-header"><span class="section-num">05</span><h2>RefoPLAY &mdash; supplier</h2></div>
+    <div class="contact-card">
+      <h3>Kewell Converters &mdash; UK Supplier</h3>
+      <p>Contact: <strong>Scot Mackay</strong></p>
+      <p><a href="mailto:scot.mackay@kewell-converters.co.uk">scot.mackay@kewell-converters.co.uk</a></p>
+      <p>01732 606 091 &middot; 07895 719 156</p>
+      <p><a href="https://www.kewell-converters.co.uk" target="_blank" rel="noopener">kewell-converters.co.uk</a></p>
+    </div>
+  </section>
+  <hr class="product-divider">
+  <section class="product-section" id="s06">
+    <div class="section-header"><span class="section-num">06</span><h2>SBR40 Rubber Tile &mdash; what it is</h2></div>
+    <p>The SBR40 is a heavy-duty recycled rubber tile used by Playful as a temporary, deployable safety surface for play activations. Made from recycled SBR rubber granules (Styrene-Butadiene Rubber, typically from end-of-life tyres) bonded with polyurethane glue. Robust, portable and available in a choice of colours.</p>
+    <p>Unlike RefoPLAY (which sits beneath another surface layer), the SBR40 <strong>is the finished play surface itself</strong> &mdash; laid directly onto concrete or a reinforced sub-base and removed after the activation. Its weight and durability make it well suited to repeated deployment.</p>
+    <p>Manufactured by <strong>MFL Group s.r.o.</strong> (Czech Republic), trading under the <strong>More for Less</strong> brand.</p>
+  </section>
+  <section class="product-section" id="s07">
+    <div class="section-header"><span class="section-num">07</span><h2>SBR40 &mdash; specification</h2></div>
+    <table class="spec-table">
+      <thead><tr><th>Property</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Material</td><td>Recycled SBR rubber granules bonded with polyurethane glue</td></tr>
+        <tr><td>Manufacturer</td><td>MFL Group s.r.o., L&iacute;pov&aacute; 1128, 737 01 &Ccaron;esk&yacute; T&ecaron;&scaron;&iacute;n, Czech Republic</td></tr>
+        <tr><td>Tile size</td><td>500 &times; 500 &times; 40mm</td></tr>
+        <tr><td>Area per tile</td><td>0.25m&sup2; &mdash; 4 tiles per m&sup2;</td></tr>
+        <tr><td>Weight</td><td>~30 kg/m&sup2;</td></tr>
+        <tr><td>Critical Fall Height</td><td>1.3m</td></tr>
+        <tr><td>Colours</td><td>Black, red, green, grey</td></tr>
+        <tr><td>Recommended sub-base</td><td>Concrete or other reinforced surface</td></tr>
+        <tr><td>Max per pallet</td><td>35m&sup2; &middot; pallet height ~1,600mm &middot; ~1,075 kg</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Key notes:</strong> Tiles are heavy (~30 kg/m&sup2;) &mdash; factor handling and transport into any hire or supply proposal. Colour stability may vary over time with UV exposure.</p>
+  </section>
+</main>
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 273 85" aria-label="Playful"><path fill="#fffff7" d="M62.841.12H51.26v65.821h11.581zM258.913 1.34h2.017v5.63h1.274V1.34h2.017V.116h-5.308zM243.148 1.115c0 3.757-.895 5.592-1.842 7.536-1.004 2.062-2.043 4.193-2.043 8.409s1.039 6.347 2.044 8.408c.946 1.942 1.841 3.777 1.841 7.531 0 3.757-.895 5.593-1.842 7.537-1.004 2.062-2.043 4.194-2.043 8.413s1.039 6.352 2.043 8.413c.947 1.944 1.842 3.78 1.842 7.537v1h12.223v-1c0-4.218-1.039-6.351-2.044-8.412-.947-1.944-1.842-3.781-1.842-7.538s.895-5.594 1.842-7.538c1.005-2.062 2.044-4.194 2.044-8.412 0-4.216-1.039-6.347-2.044-8.408-.947-1.942-1.842-3.777-1.842-7.531 0-3.755.895-5.59 1.842-7.533 1.005-2.062 2.044-4.194 2.044-8.412v-1h-12.223zM270.89.116l-2.115 5.337-2.116-5.337h-1.487V6.97h1.253V2.75l1.645 4.22h1.409l1.645-4.22v4.22h1.254V.116zM25.616.12H.252v65.821h12.037V43.968h13.327c13.053 0 22.17-9.034 22.17-21.97C47.787 9.117 38.67.12 25.616.12m-.092 32.458H12.289V11.42h13.235c6.402 0 10.225 3.955 10.225 10.579s-3.823 10.579-10.225 10.579M222.805 45.795c0 6.26-3.36 9.85-9.22 9.85s-9.221-3.59-9.221-9.85v-28.99h-11.581v29.264c0 12.516 8.165 20.603 20.802 20.603 12.636 0 20.801-8.087 20.801-20.603V16.805h-11.581zM107.462 54.092V34.216c0-9.061-6.926-18.232-20.162-18.232-10.494 0-18.228 6.626-19.245 16.488l-.113 1.103H79.01l.148-.821c.497-2.733 2.928-5.925 8.142-5.925 5.99 0 8.672 3.71 8.672 7.388v1.006H84.288c-12.929 0-17.517 8.2-17.517 15.223 0 9.455 7.252 16.318 17.243 16.318 5.727 0 10.38-1.987 13.182-5.542.968 3.001 3.633 4.721 7.531 4.721h6.84V55.464h-2.642c-1.176-.001-1.463-.271-1.463-1.372m-11.491-7.385c0 4.333-2.726 9.394-10.406 9.394-3.545 0-7.121-1.749-7.121-5.656 0-3.007 2.44-5.107 5.936-5.107h11.592zM166.048 13.154v3.65H158.2v10.661h7.848v38.476h11.582V27.465h10.767V16.804H177.63v-3.012c0-2.18 1.075-3.285 3.196-3.285h8.026V.12h-9.303c-8.201 0-13.501 5.116-13.501 13.034M131.749 47.294l-12.016-30.489h-12.448v2.113l18.35 43.478-8.313 20.494v2.107h11.893l26.808-65.904.073-.182v-2.106h-11.985z"/></svg></div>
+      <div class="footer-details"><strong>Playful Ltd</strong><br>Castleton Mill, Castleton Close<br>Leeds LS12 2DS<br><br>Company no. 167&#8239;279&#8239;69 &nbsp;&middot;&nbsp; VAT 508&#8239;516&#8239;983</div>
+    </div>
+    <div class="footer-contact">
+      <a href="mailto:admin@makeitplayful.com">admin@makeitplayful.com</a>
+      <a href="https://makeitplayful.com" target="_blank" rel="noopener">makeitplayful.com</a>
+      <p style="margin-top:12px;">Internal reference &nbsp;&middot;&nbsp; Do not share externally</p>
+    </div>
+  </div>
+  <div class="footer-bottom">&copy; Playful Ltd 2026. All rights reserved.</div>
+</footer>
+</body>
+</html>
