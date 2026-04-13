@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safeguarding Policy — Playful Ltd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orangey: #FFBF00;
+    --inky: #1C252E;
+    --splashy: #C9EBFF;
+    --milky: #FFFFF7;
+    --peachy: #FF7454;
+    --limey: #C7FF7E;
+    --blackcurranty: #748EFF;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--splashy);
+    color: var(--inky);
+    line-height: 1.6;
+  }
+
+  .cover {
+    background: var(--inky);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-shapes { position: absolute; inset: 0; pointer-events: none; }
+
+  .shape { position: absolute; opacity: 0.12; }
+  .shape-circle-lg { width: 320px; height: 320px; border-radius: 50%; background: var(--orangey); top: -80px; right: -80px; }
+  .shape-square { width: 120px; height: 120px; background: var(--blackcurranty); bottom: 160px; right: 80px; transform: rotate(18deg); border-radius: 8px; opacity: 0.2; }
+  .shape-triangle { width: 0; height: 0; border-left: 70px solid transparent; border-right: 70px solid transparent; border-bottom: 120px solid var(--limey); bottom: 80px; left: 48px; opacity: 0.15; }
+  .shape-rect { width: 60px; height: 160px; background: var(--peachy); top: 200px; left: 30px; transform: rotate(-12deg); border-radius: 6px; opacity: 0.15; }
+  .shape-circle-sm { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--orangey); top: 300px; right: 200px; opacity: 0.25; }
+  .shape-diamond { width: 90px; height: 90px; background: var(--splashy); transform: rotate(45deg); top: 150px; right: 300px; border-radius: 6px; opacity: 0.1; }
+
+  .cover-logo { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+  .logo-mark { width: 36px; height: 36px; }
+  .logo-text { font-size: 18px; font-weight: 700; color: var(--milky); letter-spacing: -0.02em; }
+  .logo-text span { color: var(--orangey); }
+  .cover-body { position: relative; z-index: 1; }
+  .cover-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orangey); margin-bottom: 24px; }
+  .cover-title { font-size: clamp(40px, 6vw, 72px); font-weight: 800; color: var(--milky); line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; }
+  .cover-title em { color: var(--orangey); font-style: normal; }
+  .cover-sub { font-size: 16px; color: rgba(255,255,247,0.6); max-width: 440px; line-height: 1.6; }
+  .cover-footer { display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 1; flex-wrap: wrap; gap: 16px; }
+  .cover-meta { font-size: 12px; color: rgba(255,255,247,0.4); }
+  .cover-meta p { margin-bottom: 2px; }
+
+  .content { max-width: 780px; margin: 0 auto; padding: 64px 48px 96px; }
+
+  .status-banner { background: var(--orangey); color: var(--inky); padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 48px; display: flex; align-items: center; gap: 8px; }
+  .status-banner::before { content: '⚠'; font-size: 14px; }
+
+  .section { margin-bottom: 56px; }
+  .section-number { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--orangey); margin-bottom: 8px; }
+  .section-title { font-size: 26px; font-weight: 800; color: var(--inky); letter-spacing: -0.02em; margin-bottom: 20px; line-height: 1.2; }
+  .section-divider { width: 100%; height: 2px; background: var(--inky); margin-bottom: 24px; border-radius: 2px; }
+
+  p { font-size: 15px; color: var(--inky); line-height: 1.75; margin-bottom: 16px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 700; }
+
+  ul { list-style: none; padding: 0; margin: 0 0 16px; }
+  ul li { font-size: 15px; line-height: 1.7; padding: 6px 0 6px 24px; position: relative; color: var(--inky); border-bottom: 1px solid rgba(28,37,46,0.08); }
+  ul li:last-child { border-bottom: none; }
+  ul li::before { content: '—'; position: absolute; left: 0; color: var(--orangey); font-weight: 700; }
+
+  .callout { background: var(--inky); color: var(--milky); border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+  .callout p { color: var(--milky); margin-bottom: 0; font-size: 15px; }
+  .callout strong { color: var(--orangey); }
+  .callout-emergency { background: var(--orangey); color: var(--inky); border-radius: 12px; padding: 20px 28px; margin: 24px 0; font-weight: 700; font-size: 15px; }
+
+  .steps { counter-reset: steps; list-style: none; padding: 0; margin: 0 0 16px; }
+  .steps li { counter-increment: steps; font-size: 15px; line-height: 1.7; padding: 10px 0 10px 44px; position: relative; color: var(--inky); border-bottom: 1px solid rgba(28,37,46,0.08); }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(steps); position: absolute; left: 0; top: 10px; width: 28px; height: 28px; background: var(--orangey); color: var(--inky); border-radius: 50%; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+
+  .dsl-card { background: var(--milky); border-radius: 12px; padding: 24px 28px; margin: 20px 0; border-left: 4px solid var(--orangey); }
+  .dsl-name { font-size: 18px; font-weight: 800; color: var(--inky); letter-spacing: -0.02em; margin-bottom: 4px; }
+  .dsl-title { font-size: 13px; color: rgba(28,37,46,0.55); font-weight: 500; margin-bottom: 12px; }
+  .dsl-card p { font-size: 14px; color: var(--inky); margin-bottom: 0; }
+
+  .review-box { background: var(--inky); border-radius: 12px; padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .review-item label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orangey); margin-bottom: 6px; }
+  .review-item span { font-size: 15px; font-weight: 600; color: var(--milky); }
+
+  .doc-footer { background: var(--inky); padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .doc-footer p { font-size: 12px; color: rgba(255,255,247,0.4); margin: 0; }
+  .doc-footer a { color: var(--orangey); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .cover { padding: 32px 24px; }
+    .content { padding: 48px 24px 64px; }
+    .review-box { grid-template-columns: 1fr; }
+    .doc-footer { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-shapes">
+    <div class="shape shape-circle-lg"></div>
+    <div class="shape shape-square"></div>
+    <div class="shape shape-triangle"></div>
+    <div class="shape shape-rect"></div>
+    <div class="shape shape-circle-sm"></div>
+    <div class="shape shape-diamond"></div>
+  </div>
+  <div class="cover-logo">
+    <svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="34" height="34" rx="6" fill="#FFBF00" stroke="#FFBF00" stroke-width="1"/>
+      <path d="M8 14 Q12 10 16 14 Q20 18 24 14 Q28 10 32 14" stroke="#1C252E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M8 20 Q12 16 16 20 Q20 24 24 20 Q28 16 32 20" stroke="#1C252E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M8 26 Q12 22 16 26 Q20 30 24 26 Q28 22 32 26" stroke="#1C252E" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+    </svg>
+    <span class="logo-text">Playful<span>™</span></span>
+  </div>
+  <div class="cover-body">
+    <p class="cover-label">Policy Document · Internal &amp; External</p>
+    <h1 class="cover-title">Safeguarding<br><em>Policy.</em></h1>
+    <p class="cover-sub">Protecting children and young people in every space where Playful works.</p>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-meta">
+      <p>Playful Ltd · makeitplayful.com</p>
+      <p>Castleton Mill, Castleton Close, Leeds LS12 2DS</p>
+    </div>
+    <div class="cover-meta" style="text-align:right;">
+      <p>Last updated: April 2026</p>
+      <p>Status: Draft — not yet approved</p>
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--inky); line-height:0;">
+  <svg viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;width:100%;height:40px;">
+    <path d="M0,20 Q60,0 120,20 Q180,40 240,20 Q300,0 360,20 Q420,40 480,20 Q540,0 600,20 Q660,40 720,20 Q780,0 840,20 Q900,40 960,20 Q1020,0 1080,20 Q1140,40 1200,20 Q1260,0 1320,20 Q1380,40 1440,20 L1440,40 L0,40 Z" fill="#C9EBFF"/>
+  </svg>
+</div>
+
+<div class="content">
+  <div class="status-banner">Draft — not yet approved. Review before submitting to any client or funder.</div>
+
+  <div class="section">
+    <p class="section-number">01</p>
+    <h2 class="section-title">Policy statement</h2>
+    <div class="section-divider"></div>
+    <p>Playful Ltd is committed to the safety and wellbeing of every child and young person who comes into contact with our work. We take seriously our responsibility to protect children from harm, and we expect everyone working with us — in any capacity — to share that commitment.</p>
+    <p>This policy applies to all Playful employees, contractors and Playmakers. It is not optional and it is not conditional on the nature of a particular project. Anyone working under the Playful name, in any space where children may be present, is covered by and bound by this policy.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">02</p>
+    <h2 class="section-title">Scope</h2>
+    <div class="section-divider"></div>
+    <p>This policy covers:</p>
+    <ul>
+      <li>All three Playful employees</li>
+      <li>All contractors engaged by Playful</li>
+      <li>All Playmakers working on Playful projects or activations</li>
+      <li>Any volunteer or associate working on behalf of Playful</li>
+    </ul>
+    <p>It applies in all settings where Playful operates — cultural venues, public spaces, festivals, community locations, schools and any other site where children under 18 may be present.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">03</p>
+    <h2 class="section-title">Designated Safeguarding Lead</h2>
+    <div class="section-divider"></div>
+    <div class="dsl-card">
+      <div class="dsl-name">Beth Cooper</div>
+      <div class="dsl-title">Designated Safeguarding Lead · Co-Founder, Playful Ltd</div>
+      <p>First point of contact for all safeguarding concerns. Responsible for overseeing implementation of this policy, recording and referring concerns, and maintaining safeguarding training.</p>
+    </div>
+    <p>In Beth's absence, safeguarding concerns should be escalated to one of the other co-founders (Jon Eden or Dirk Mischendahl) and referred to the relevant venue's designated safeguarding lead where one exists.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">04</p>
+    <h2 class="section-title">Recognising concerns</h2>
+    <div class="section-divider"></div>
+    <p>Anyone working with Playful should be alert to signs that a child may be experiencing harm or abuse. This includes but is not limited to:</p>
+    <ul>
+      <li>Unexplained injuries or changes in behaviour</li>
+      <li>A child disclosing abuse or expressing fear</li>
+      <li>Behaviour by an adult towards a child that seems inappropriate, controlling or concerning</li>
+      <li>Any situation where a child appears to be at immediate risk</li>
+    </ul>
+    <p>If you are unsure whether something is a concern, treat it as one and report it.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">05</p>
+    <h2 class="section-title">Responding to a concern</h2>
+    <div class="section-divider"></div>
+    <div class="callout-emergency">If a child is in immediate danger, call 999.</div>
+    <p>For all other concerns:</p>
+    <ol class="steps">
+      <li>Do not investigate yourself or promise confidentiality to anyone</li>
+      <li>Listen carefully and note exactly what was said or observed</li>
+      <li>Contact Beth Cooper as soon as possible — the same day where practicable</li>
+      <li>Record the concern in writing as soon as you are able, including the date, time, location and the names of anyone involved</li>
+      <li>Beth will assess the concern and determine whether it needs to be referred to the host venue's safeguarding lead, the local authority children's services, or the police</li>
+    </ol>
+    <p>Do not discuss the concern with anyone other than the DSL unless directed to do so.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">06</p>
+    <h2 class="section-title">Photography and images of children</h2>
+    <div class="section-divider"></div>
+    <p>Playful's work is regularly documented through photography and video. We handle images of children with care. Our full approach is set out in the Playful Privacy Policy (Photography and video section).</p>
+    <ul>
+      <li>Where images are taken in publicly accessible venues, we rely on legitimate interests</li>
+      <li>Where we have control over the context — schools, private events, venues with direct access to attendees — we seek parental or guardian consent</li>
+      <li>We always respect requests not to photograph specific children</li>
+      <li>Images of children are never shared in a way that could identify them without appropriate consent</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <p class="section-number">07</p>
+    <h2 class="section-title">Safer recruitment</h2>
+    <div class="section-divider"></div>
+    <p>Playful is committed to safe recruitment practices for all employees, contractors and Playmakers who work in settings where children may be present.</p>
+    <ul>
+      <li>All employees, contractors and Playmakers working directly with children or in settings where children are regularly present are required to hold a valid enhanced DBS check</li>
+      <li>DBS checks must be in place before any individual begins work in such a setting</li>
+      <li>We will not engage anyone on the barred list</li>
+      <li>References are taken up for all new employees and will be requested for contractors and Playmakers where appropriate</li>
+    </ul>
+    <p>Contractors and Playmakers who hold a current DBS through another employer should provide evidence of it. Where no current DBS exists, Playful will arrange one.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">08</p>
+    <h2 class="section-title">Conduct with children</h2>
+    <div class="section-divider"></div>
+    <p>All Playful employees, contractors and Playmakers must:</p>
+    <ul>
+      <li>Never be alone with a child in a private or enclosed space</li>
+      <li>Ensure any one-to-one interaction with a child takes place within sight of other adults</li>
+      <li>Never make physical contact with a child beyond what is appropriate and necessary</li>
+      <li>Never exchange personal contact details with children or young people</li>
+      <li>Never use social media to contact children or young people met through Playful's work</li>
+      <li>Maintain appropriate professional boundaries at all times</li>
+    </ul>
+    <div class="callout">
+      <p>If you are unsure about any behaviour — your own or someone else's — <strong>speak to the DSL.</strong></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-number">09</p>
+    <h2 class="section-title">Training</h2>
+    <div class="section-divider"></div>
+    <p>Beth Cooper, as DSL, will maintain an appropriate level of safeguarding training and keep up to date with statutory guidance. All Playful employees are expected to complete basic safeguarding awareness training. Contractors and Playmakers working regularly in settings with children are strongly encouraged to do the same.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">10</p>
+    <h2 class="section-title">Confidentiality and information sharing</h2>
+    <div class="section-divider"></div>
+    <p>Safeguarding concerns are not subject to normal rules of confidentiality. If a disclosure or concern requires information to be shared with external agencies to protect a child, that information will be shared regardless of any expectation of privacy.</p>
+  </div>
+
+  <div class="section">
+    <p class="section-number">11</p>
+    <h2 class="section-title">Allegations against staff or contractors</h2>
+    <div class="section-divider"></div>
+    <p>If a concern is raised about the behaviour of a Playful employee, contractor or Playmaker towards a child:</p>
+    <ol class="steps">
+      <li>The concern should be reported to Beth Cooper immediately</li>
+      <li>If the concern involves Beth, it should be reported to Jon Eden or Dirk Mischendahl</li>
+      <li>The individual concerned will be stood down from any role involving children pending investigation</li>
+      <li>The matter will be referred to the Local Authority Designated Officer (LADO) where required</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <p class="section-number">12</p>
+    <h2 class="section-title">Policy review</h2>
+    <div class="section-divider"></div>
+    <p>This policy will be reviewed annually, or sooner if there is a significant change in legislation, guidance or the nature of Playful's work.</p>
+    <div class="review-box">
+      <div class="review-item"><label>Next review date</label><span>April 2027</span></div>
+      <div class="review-item"><label>Policy owner</label><span>Beth Cooper</span></div>
+      <div class="review-item"><label>Last updated</label><span>April 2026</span></div>
+      <div class="review-item"><label>Status</label><span>Draft</span></div>
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--inky); line-height:0;">
+  <svg viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;width:100%;height:40px; transform:scaleY(-1);">
+    <path d="M0,20 Q60,0 120,20 Q180,40 240,20 Q300,0 360,20 Q420,40 480,20 Q540,0 600,20 Q660,40 720,20 Q780,0 840,20 Q900,40 960,20 Q1020,0 1080,20 Q1140,40 1200,20 Q1260,0 1320,20 Q1380,40 1440,20 L1440,40 L0,40 Z" fill="#C9EBFF"/>
+  </svg>
+</div>
+<footer class="doc-footer">
+  <p>Playful Ltd · Company No. 167 279 69 · Castleton Mill, Castleton Close, Leeds LS12 2DS</p>
+  <p><a href="https://makeitplayful.com">makeitplayful.com</a> · admin@makeitplayful.com</p>
+</footer>
+
+</body>
+</html>
