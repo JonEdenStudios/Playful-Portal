@@ -23,9 +23,45 @@ nav{position:sticky;top:0;z-index:100;background:var(--inky);padding:0 48px;heig
 .hero-meta{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55)}
 .internal-wrap{background:var(--inky);border-bottom:2px solid rgba(255,191,0,0.25)}
 .internal-inner{max-width:860px;margin:0 auto;padding:10px 48px;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+.status-wrap{background:var(--orangey)}
+.status-inner{max-width:860px;margin:0 auto;padding:12px 48px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--inky)}
+.contents-wrap{background:var(--milky);border-bottom:1px solid rgba(28,37,46,0.08)}
+.contents{max-width:860px;margin:0 auto;padding:40px 48px}
+.contents-title{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(28,37,46,0.35);margin-bottom:20px}
+.contents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 24px}
+.contents-grid a{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--inky);text-decoration:none;padding:6px 0;border-bottom:1px solid rgba(28,37,46,0.06);transition:color 0.15s}
+.contents-grid a:hover{color:var(--orangey)}.contents-grid a .c-num{font-size:10px;font-weight:900;color:var(--orangey);min-width:20px}
+main{max-width:860px;margin:0 auto;padding:64px 48px 96px}
+.product-section{margin-bottom:64px;scroll-margin-top:72px}
+.section-header{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid var(--inky)}
+.section-num{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--orangey);white-space:nowrap}
+.section-header h2{font-size:22px;font-weight:900;line-height:1.1}
+.product-section p{margin-bottom:16px;color:rgba(28,37,46,0.85)}.product-section p:last-child{margin-bottom:0}
+.product-list{list-style:none;margin:0 0 16px}
+.product-list li{position:relative;padding-left:20px;margin-bottom:10px;color:rgba(28,37,46,0.85);font-size:15px}
+.product-list li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--orangey);border-radius:50%}
+.spec-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.spec-table thead tr{background:var(--inky)}
+.spec-table thead th{padding:14px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+.spec-table tbody tr{border-bottom:1px solid rgba(28,37,46,0.08)}.spec-table tbody tr:nth-child(even){background:rgba(28,37,46,0.03)}
+.spec-table tbody td{padding:14px 20px;vertical-align:top;color:rgba(28,37,46,0.85)}.spec-table tbody td:first-child{font-weight:600;color:var(--inky)}
+.fit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.fit-box{background:rgba(28,37,46,0.04);border-radius:8px;padding:20px}
+.fit-box h3{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.fit-box.good{border-top:3px solid var(--orangey)}.fit-box.good h3{color:var(--orangey)}
+.fit-box.less{border-top:3px solid rgba(28,37,46,0.15)}.fit-box.less h3{color:rgba(28,37,46,0.4)}
+.halves-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.half-box{background:rgba(28,37,46,0.04);border-radius:8px;padding:24px;border-top:3px solid var(--orangey)}
+.half-box h3{font-size:13px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--inky);margin-bottom:14px}
+.half-box .half-label{display:inline-block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orangey);margin-bottom:8px}
+.callout{background:var(--orangey);border-radius:8px;padding:24px 28px;margin:28px 0}
+.callout p{color:var(--inky)!important;font-weight:600;margin:0!important}.callout a{color:var(--inky)}
 .callout-dark{background:var(--inky);border-radius:8px;padding:24px 28px;margin:28px 0}
 .callout-dark p{color:var(--milky)!important;font-weight:600;margin:0!important}
-main{max-width:860px;margin:0 auto;padding:64px 48px 96px}
+.collab-block{background:rgba(28,37,46,0.04);border-radius:8px;padding:24px 28px;margin:20px 0;border-left:4px solid var(--orangey)}
+.collab-block h3{font-size:14px;font-weight:800;margin-bottom:8px}
+.collab-block .collab-status{display:inline-block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:var(--orangey);color:var(--inky);padding:2px 8px;border-radius:100px;margin-left:10px;vertical-align:middle}
+.collab-block p{font-size:14px;margin-bottom:0!important;color:rgba(28,37,46,0.8)}
 footer{background:var(--inky);padding:48px}
 .footer-inner{max-width:860px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:32px}
 .footer-logo svg{height:18px;width:auto;display:block;margin-bottom:16px}
@@ -34,7 +70,7 @@ footer{background:var(--inky);padding:48px}
 .footer-contact a{display:block;color:var(--orangey);font-weight:700;font-size:13px;text-decoration:none;margin-bottom:8px}
 .footer-contact a:hover{text-decoration:underline}
 .footer-bottom{max-width:860px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4)}
-@media(max-width:640px){nav{padding:0 24px}.hero{padding:56px 24px 64px}main{padding:48px 24px 72px}footer{padding:40px 24px}.footer-inner{flex-direction:column}.footer-contact{text-align:left}.internal-inner{padding-left:24px;padding-right:24px}}
+@media(max-width:640px){nav{padding:0 24px}.hero{padding:56px 24px 64px}.contents{padding:32px 24px}main{padding:48px 24px 72px}footer{padding:40px 24px}.footer-inner{flex-direction:column}.footer-contact{text-align:left}.internal-inner{padding-left:24px;padding-right:24px}.status-inner{padding-left:24px;padding-right:24px}.section-header{flex-direction:column;gap:6px}.fit-grid{grid-template-columns:1fr}.halves-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -49,15 +85,163 @@ footer{background:var(--inky);padding:48px}
 <header class="hero">
   <div class="hero-shape-1"></div><div class="hero-shape-2"></div>
   <div class="hero-inner">
-    <span class="hero-tag">Product</span>
-    <h1>Playcaf&eacute;.<br><span>Coming soon.</span></h1>
-    <p class="hero-sub">A Playful product currently in development. Content will be added to this page once the product brief is confirmed.</p>
+    <span class="hero-tag">Product &mdash; In Development</span>
+    <h1>Playcaf&eacute;.<br><span>Catering and play.<br>One unit. Any site.</span></h1>
+    <p class="hero-sub">A converted shipping container with a fully equipped caf&eacute; on one side and a configurable play or seating space on the other. Self-contained. Road-deliverable. No mains utilities required.</p>
     <p class="hero-meta">Internal reference &middot; Playful Ltd</p>
   </div>
 </header>
 <div class="internal-wrap"><div class="internal-inner">Internal Reference &mdash; Do Not Share Externally</div></div>
+<div class="status-wrap"><div class="status-inner">&#9888;&nbsp; Product in development &mdash; specification not yet finalised. Do not quote prices or commit to timelines without checking with the team first.</div></div>
+<div class="contents-wrap"><div class="contents">
+  <p class="contents-title">Contents</p>
+  <div class="contents-grid">
+    <a href="#s01"><span class="c-num">01</span> What it is</a>
+    <a href="#s02"><span class="c-num">02</span> The two halves</a>
+    <a href="#s03"><span class="c-num">03</span> Power &amp; utilities</a>
+    <a href="#s04"><span class="c-num">04</span> What it&rsquo;s suited to</a>
+    <a href="#s05"><span class="c-num">05</span> Typical scale</a>
+    <a href="#s06"><span class="c-num">06</span> Pricing</a>
+    <a href="#s07"><span class="c-num">07</span> Collaborators</a>
+    <a href="#s08"><span class="c-num">08</span> Key notes for proposals</a>
+    <a href="#s09"><span class="c-num">09</span> Past projects</a>
+  </div>
+</div></div>
 <main>
-  <div class="callout-dark"><p>Page content not yet added &mdash; update the Notion source page to populate this reference document.</p></div>
+
+  <section class="product-section" id="s01">
+    <div class="section-header"><span class="section-num">01</span><h2>What it is</h2></div>
+    <p>Playcaf&eacute; is a converted shipping container &mdash; self-contained, road-deliverable, and ready to trade. One unit. Two distinct halves. Everything it needs built in.</p>
+    <p>One side is a fully equipped caf&eacute; outlet: coffee machine, drinks fridge, ice-cream freezer and till. Signage, lighting and a fold-out awning for outdoor cover are included. The unit runs on solar-charged batteries &mdash; with a swappable battery system designed for sites without a mains connection. Temporary water supply and handwashing waste are built in.</p>
+    <p>The other half is configurable. Supervised play space with overnight equipment storage. Additional caf&eacute; seating. Or specified differently to suit the client&rsquo;s programme. The second half does whatever the brief needs it to do.</p>
+    <p>Playcaf&eacute; is being developed in partnership with <strong>White Crate</strong>, Playful&rsquo;s container architecture collaborators, whose track record includes the National Railway Museum caf&eacute; and Liverpool FC street food units.</p>
+  </section>
+
+  <section class="product-section" id="s02">
+    <div class="section-header"><span class="section-num">02</span><h2>The two halves</h2></div>
+    <p>The container divides cleanly into two equal sections. Each is designed for its own purpose &mdash; but the two work as a single unit on site.</p>
+    <div class="halves-grid">
+      <div class="half-box">
+        <span class="half-label">Fixed</span>
+        <h3>Caf&eacute; outlet</h3>
+        <ul class="product-list">
+          <li>Espresso coffee machine</li>
+          <li>Drinks fridge</li>
+          <li>Ice-cream freezer</li>
+          <li>Till and payment terminal</li>
+          <li>Integrated signage and lighting</li>
+          <li>Fold-out awning for outdoor cover</li>
+        </ul>
+      </div>
+      <div class="half-box">
+        <span class="half-label">Configurable</span>
+        <h3>Second half</h3>
+        <ul class="product-list">
+          <li>Supervised play space with overnight equipment storage</li>
+          <li>Additional caf&eacute; tables and seating</li>
+          <li>Any other client-specific use &mdash; specify at brief stage</li>
+        </ul>
+      </div>
+    </div>
+    <p>When configured as a play space, the second half stores play equipment inside the closed unit overnight &mdash; solving a common operational problem for venues running supervised play programmes without a permanent building for kit.</p>
+  </section>
+
+  <section class="product-section" id="s03">
+    <div class="section-header"><span class="section-num">03</span><h2>Power &amp; utilities</h2></div>
+    <table class="spec-table">
+      <thead><tr><th>System</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Solar panels</td><td>Roof-mounted array for continuous battery recharge during operation</td></tr>
+        <tr><td>Battery system</td><td>Swappable batteries &mdash; units can be exchanged on site to extend operating hours independently of solar generation</td></tr>
+        <tr><td>Power scheme</td><td>Managed power allocation across caf&eacute; equipment, lighting and signage. Mains connection not required</td></tr>
+        <tr><td>Lighting</td><td>Integrated throughout &mdash; internal and external</td></tr>
+        <tr><td>Water supply</td><td>Temporary supply connection for handwashing. Waste system included</td></tr>
+        <tr><td>Signage</td><td>Illuminated. Integrated into the unit structure</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><p>The self-contained power and water system is the commercial differentiator. Many sites need catering but lack the infrastructure for it. Lead with this when the brief includes green space, temporary sites or venues with limited services.</p></div>
+  </section>
+
+  <section class="product-section" id="s04">
+    <div class="section-header"><span class="section-num">04</span><h2>What it&rsquo;s suited to</h2></div>
+    <p>Playcaf&eacute; works wherever a capable, commercial unit needs to be dropped in without relying on permanent infrastructure.</p>
+    <div class="fit-grid">
+      <div class="fit-box good">
+        <h3>Good fit</h3>
+        <ul class="product-list">
+          <li>Public parks and green spaces with no utility connection</li>
+          <li>Cultural venue grounds and outdoor sites</li>
+          <li>Festival and event environments &mdash; short or extended stays</li>
+          <li>School holiday and seasonal pop-up activations</li>
+          <li>Any site where a fixed caf&eacute; build is not viable but the need for family catering is real</li>
+          <li>Venues running supervised play programmes needing overnight kit storage</li>
+        </ul>
+      </div>
+      <div class="fit-box less">
+        <h3>Less suited</h3>
+        <ul class="product-list">
+          <li>Permanent indoor installations &mdash; this is an outdoor, temporary or semi-permanent product</li>
+          <li>Sites with no vehicle access for delivery</li>
+          <li>Very small footprints &mdash; the unit plus awning needs adequate clearance</li>
+        </ul>
+      </div>
+    </div>
+    <p>The play-space configuration makes Playcaf&eacute; well matched to family-facing venues. Parents can be served on one side while children are engaged on the other. Dwell time and spend naturally follow.</p>
+  </section>
+
+  <section class="product-section" id="s05">
+    <div class="section-header"><span class="section-num">05</span><h2>Typical scale</h2></div>
+    <table class="spec-table">
+      <thead><tr><th>Dimension</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Container size</td><td>Standard 20ft shipping container</td></tr>
+        <tr><td>Footprint (closed)</td><td>Approx. 6m &times; 2.4m</td></tr>
+        <tr><td>Footprint (awning deployed)</td><td>Approx. 6m &times; 6&ndash;8m depending on configuration</td></tr>
+        <tr><td>Play area</td><td>Additional clearance required on the open side &mdash; confirm at site survey stage</td></tr>
+        <tr><td>Delivery</td><td>Flat-bed vehicle. Requires suitable road access and a reasonably level surface</td></tr>
+        <tr><td>Foundation</td><td>No permanent foundation required. Unit can be relocated</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="product-section" id="s06">
+    <div class="section-header"><span class="section-num">06</span><h2>Pricing</h2></div>
+    <div class="callout-dark"><p>Pricing is under development &mdash; indicative figures will be added once the specification is finalised. Engage the Playful team for early-stage budget discussions. Do not quote figures to clients at this stage.</p></div>
+  </section>
+
+  <section class="product-section" id="s07">
+    <div class="section-header"><span class="section-num">07</span><h2>Collaborators</h2></div>
+    <p>Two partners are associated with Playcaf&eacute; at different stages of confirmation.</p>
+
+    <div class="collab-block">
+      <h3>White Crate <span class="collab-status">Confirmed partner</span></h3>
+      <p>Container architecture and modular build specialists. White Crate is designing and building the Playcaf&eacute; unit. Their work includes the National Railway Museum caf&eacute;, Liverpool FC street food, and major public market schemes in Wolverhampton, Preston and Altrincham. Every project is bespoke &mdash; fabricated at their own facility and delivered ready for site. Website: <a href="https://whitecrate.co" target="_blank" rel="noopener">whitecrate.co</a> &middot; Tel: 0161 706 0974</p>
+    </div>
+
+    <div class="collab-block">
+      <h3>Northern Bloc Ice Cream <span class="collab-status" style="background:rgba(28,37,46,0.12);color:var(--inky);">Under discussion</span></h3>
+      <p>Independent, B-Corp certified ice cream brand with a strong cultural venue track record. A potential collaboration to supply the ice-cream offer within Playcaf&eacute; is under discussion &mdash; not confirmed. Do not present this as a fixed partnership in proposals or client conversations. Website: <a href="https://www.northern-bloc.com" target="_blank" rel="noopener">northern-bloc.com</a></p>
+    </div>
+  </section>
+
+  <section class="product-section" id="s08">
+    <div class="section-header"><span class="section-num">08</span><h2>Key notes for proposals</h2></div>
+    <ul class="product-list">
+      <li>Always flag that Playcaf&eacute; is under development. Be specific: the concept is well defined; the specification is in progress. Do not overstate its readiness.</li>
+      <li>Lead with the self-contained power and water system. It solves a problem most outdoor sites have &mdash; the need for catering without the infrastructure to support it.</li>
+      <li>Present the configurable second half as a feature. Clients decide what they need the space to do, and the unit adapts to that.</li>
+      <li>Name White Crate when design and build credibility is needed. Their track record with major venues and local authorities strengthens Playful&rsquo;s position in larger commissions.</li>
+      <li>Northern Bloc is a direction under discussion &mdash; not a confirmed partnership. Do not name it in client-facing materials without checking first.</li>
+      <li>The overnight play equipment storage makes Playcaf&eacute; practical for venues running supervised play programmes without a permanent building.</li>
+      <li>Pricing is not yet confirmed. Direct any cost enquiries to the Playful team.</li>
+    </ul>
+  </section>
+
+  <section class="product-section" id="s09">
+    <div class="section-header"><span class="section-num">09</span><h2>Past projects</h2></div>
+    <div class="callout-dark"><p>No completed projects yet &mdash; product is in development. Update this section once the first unit is operational.</p></div>
+  </section>
+
 </main>
 <footer>
   <div class="footer-inner">
