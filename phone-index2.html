@@ -974,6 +974,7 @@
     // ── MUSIC (HTML audio — cross-browser) ─────────────────────────────────
     const bgMusic   = document.getElementById('bg-music');
     bgMusic.volume  = 0.18;
+    bgMusic.muted   = false;
 
     function startMusic() {
         bgMusic.play().catch(() => {});
@@ -2340,6 +2341,7 @@
 
     // Tune — music only
     let musicMuted = false;
+    document.getElementById('ptb-tune').classList.add('active'); // music on by default
     document.getElementById('ptb-tune').addEventListener('click', () => {
         musicMuted = !musicMuted;
         bgMusic.muted = musicMuted;
