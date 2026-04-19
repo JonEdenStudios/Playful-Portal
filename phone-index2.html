@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Playshapes™ at Energy Central Campus · 2 May 2027</title>
+    <title>Playshapes™ at Energy Central Campus · 2 May 2026</title>
     <script>
         // This IS the phone version — no redirect needed.
         // Desktop link available in UI if user wants to switch.
@@ -416,7 +416,7 @@
         <div id="ptb-popup-event" class="toolbar-popup">
             <div style="border-radius:8px;margin-bottom:12px;padding:12px;background:rgba(255,191,0,0.10);">
                 <div class="eyebrow-label" style="margin-bottom:6px;">PLAYSHAPES™ LIVE</div>
-                <p style="font-size:15px;font-weight:800;color:var(--inky);margin:0 0 3px;">2 May 2027</p>
+                <p style="font-size:15px;font-weight:800;color:var(--inky);margin:0 0 3px;">2 May 2026</p>
                 <p style="font-size:13px;font-weight:600;color:var(--inky);margin:0 0 2px;">10:00 – 17:00</p>
                 <p style="font-size:12px;color:rgba(28,37,46,0.55);margin:0;">Energy Central Campus, Blyth</p>
             </div>
@@ -645,54 +645,139 @@
         bx.fillRect(0, H*0.52, W, H*0.16);
 
         // ── Event billboard — painted into background, upper centre ──────
-        // Sits above the horizon so it reads behind the 3D floor at all times.
-        const bw = W, bh = 340;
-        const by = 48; // top of billboard area
+        const bw = W, bh = 380;
+        const by = 38;
 
-        // Dark backing pill
-        bx.globalAlpha = 0.55;
+        // Backing pill — slightly transparent dark
+        bx.globalAlpha = 0.60;
         bx.fillStyle = '#060912';
-        const r = 36;
+        const br = 40;
         bx.beginPath();
-        bx.moveTo(64 + r, by); bx.lineTo(bw - 64 - r, by);
-        bx.quadraticCurveTo(bw - 64, by, bw - 64, by + r);
-        bx.lineTo(bw - 64, by + bh - r);
-        bx.quadraticCurveTo(bw - 64, by + bh, bw - 64 - r, by + bh);
-        bx.lineTo(64 + r, by + bh);
-        bx.quadraticCurveTo(64, by + bh, 64, by + bh - r);
-        bx.lineTo(64, by + r);
-        bx.quadraticCurveTo(64, by, 64 + r, by);
+        bx.moveTo(56 + br, by); bx.lineTo(bw - 56 - br, by);
+        bx.quadraticCurveTo(bw - 56, by, bw - 56, by + br);
+        bx.lineTo(bw - 56, by + bh - br);
+        bx.quadraticCurveTo(bw - 56, by + bh, bw - 56 - br, by + bh);
+        bx.lineTo(56 + br, by + bh);
+        bx.quadraticCurveTo(56, by + bh, 56, by + bh - br);
+        bx.lineTo(56, by + br);
+        bx.quadraticCurveTo(56, by, 56 + br, by);
         bx.closePath(); bx.fill();
         bx.globalAlpha = 1;
 
-        // Orangey accent lines
-        bx.strokeStyle = '#FFBF00'; bx.lineWidth = 4;
-        bx.beginPath(); bx.moveTo(100, by + 52); bx.lineTo(W - 100, by + 52); bx.stroke();
-        bx.globalAlpha = 0.35;
-        bx.beginPath(); bx.moveTo(100, by + bh - 30); bx.lineTo(W - 100, by + bh - 30); bx.stroke();
-        bx.globalAlpha = 1;
+        // Colourful top border stripe — segments in brand colours
+        const stripeY = by, stripeH = 10;
+        const stripes = ['#FFBF00','#FF7454','#FF005E','#748EFF','#C7FF7E','#C9EBFF'];
+        const sw = (bw - 112) / stripes.length;
+        stripes.forEach((col, i) => {
+            bx.fillStyle = col;
+            const sx = 56 + i * sw;
+            const isFirst = i === 0, isLast = i === stripes.length - 1;
+            bx.beginPath();
+            if (isFirst) {
+                bx.moveTo(sx + br, stripeY); bx.lineTo(sx + sw, stripeY);
+                bx.lineTo(sx + sw, stripeY + stripeH);
+                bx.lineTo(sx + br, stripeY + stripeH);
+                bx.quadraticCurveTo(sx, stripeY + stripeH, sx, stripeY + stripeH + br);
+                // just fill rect with clip approximation
+                bx.fillRect(sx, stripeY, sw, stripeH);
+            } else if (isLast) {
+                bx.fillRect(sx, stripeY, sw, stripeH);
+            } else {
+                bx.fillRect(sx, stripeY, sw, stripeH);
+            }
+        });
 
         bx.textAlign = 'center'; bx.textBaseline = 'middle';
 
-        // Eyebrow
-        bx.fillStyle = '#FFBF00';
-        bx.font = 'bold 26px Inter, Arial';
-        bx.fillText('PLAYSHAPES™  ·  LIVE INSTALLATION', W/2, by + 82);
+        // ── Eyebrow — multicolour word by word ──
+        const eyeWords = ['PLAYSHAPES™', '·', 'LIVE', 'INSTALLATION'];
+        const eyeCols  = ['#FFBF00', '#748EFF', '#FF7454', '#C7FF7E'];
+        bx.font = 'bold 28px Inter, Arial';
+        // Measure total width to centre
+        let totalEW = 0;
+        eyeWords.forEach((w, i) => { totalEW += bx.measureText(w).width + (i < eyeWords.length-1 ? 14 : 0); });
+        let ex = W/2 - totalEW/2;
+        eyeWords.forEach((w, i) => {
+            bx.fillStyle = eyeCols[i];
+            const ww = bx.measureText(w).width;
+            bx.fillText(w, ex + ww/2, by + 68);
+            ex += ww + 14;
+        });
 
-        // Headline
+        // ── Headline — "Come" peachy, "and" white, "Play!" limey ──
+        // Draw word by word with slight individual rotations for playfulness
+        const hlWords  = [{ t:'Come!', col:'#FF7454', rot:-2 }, { t:'Come', col:'#FF7454', rot:-2 },
+                          { t:'and',   col:'#FFFFF7', rot: 1 },
+                          { t:'Play!', col:'#C7FF7E', rot: 2 }];
+        // Re-do: three words only
+        const headWords = [
+            { t: 'Come', col: '#FF7454', rot: -2.5 },
+            { t: 'and',  col: '#FFFFF7', rot:  1.2 },
+            { t: 'Play!',col: '#C7FF7E', rot:  2.8 },
+        ];
+        bx.font = 'bold 96px Inter, Arial';
+        let totalHW = 0;
+        headWords.forEach((w, i) => { totalHW += bx.measureText(w.t).width + (i < headWords.length-1 ? 22 : 0); });
+        let hx = W/2 - totalHW/2;
+        const hy = by + 180;
+        headWords.forEach(w => {
+            const ww = bx.measureText(w.t).width;
+            bx.save();
+            bx.translate(hx + ww/2, hy);
+            bx.rotate(w.rot * Math.PI / 180);
+            bx.fillStyle = w.col;
+            bx.fillText(w.t, 0, 0);
+            bx.restore();
+            hx += ww + 22;
+        });
+
+        // ── Decorative mini-shapes between headline and date ──
+        const dsy = by + 240;
+        const dShapes = [
+            { t:'ci', x: W/2-180, s:9,  col:'#FFBF00' },
+            { t:'sq', x: W/2-140, s:8,  col:'#FF7454', rot:22 },
+            { t:'tr', x: W/2-100, s:9,  col:'#748EFF' },
+            { t:'di', x: W/2- 60, s:8,  col:'#C7FF7E', rot:45 },
+            { t:'ci', x: W/2- 20, s:7,  col:'#FF005E' },
+            { t:'sq', x: W/2+ 20, s:8,  col:'#FFBF00', rot:15 },
+            { t:'tr', x: W/2+ 60, s:9,  col:'#C9EBFF' },
+            { t:'di', x: W/2+100, s:8,  col:'#FF7454', rot:45 },
+            { t:'ci', x: W/2+140, s:9,  col:'#748EFF' },
+            { t:'sq', x: W/2+180, s:8,  col:'#C7FF7E', rot:30 },
+        ];
+        dShapes.forEach(({ t, x, s, col, rot=0 }) => {
+            bx.save(); bx.translate(x, dsy); bx.rotate(rot * Math.PI/180);
+            bx.globalAlpha = 0.9; bx.fillStyle = col;
+            bx.beginPath();
+            if (t==='ci') { bx.arc(0,0,s,0,Math.PI*2); bx.fill(); }
+            else if (t==='sq') { bx.fillRect(-s,-s,s*2,s*2); }
+            else if (t==='tr') { bx.moveTo(0,-s); bx.lineTo(s*.866,s*.5); bx.lineTo(-s*.866,s*.5); bx.closePath(); bx.fill(); }
+            else { bx.moveTo(0,-s); bx.lineTo(s,0); bx.lineTo(0,s); bx.lineTo(-s,0); bx.closePath(); bx.fill(); }
+            bx.restore();
+        });
+        bx.globalAlpha = 1;
+
+        // ── Date pill — blackcurranty background, milky text ──
+        const dpw = 480, dph = 56, dpx = W/2 - dpw/2, dpy = by + 262;
+        bx.fillStyle = '#748EFF';
+        bx.beginPath();
+        bx.moveTo(dpx + 28, dpy); bx.lineTo(dpx + dpw - 28, dpy);
+        bx.quadraticCurveTo(dpx+dpw, dpy, dpx+dpw, dpy+28);
+        bx.lineTo(dpx+dpw, dpy+dph-28);
+        bx.quadraticCurveTo(dpx+dpw, dpy+dph, dpx+dpw-28, dpy+dph);
+        bx.lineTo(dpx+28, dpy+dph);
+        bx.quadraticCurveTo(dpx, dpy+dph, dpx, dpy+dph-28);
+        bx.lineTo(dpx, dpy+28);
+        bx.quadraticCurveTo(dpx, dpy, dpx+28, dpy);
+        bx.closePath(); bx.fill();
         bx.fillStyle = '#FFFFF7';
-        bx.font = 'bold 88px Inter, Arial';
-        bx.fillText('Come and Play', W/2, by + 172);
+        bx.font = 'bold 30px Inter, Arial';
+        bx.fillText('2 May 2026  ·  10:00–17:00', W/2, dpy + 28);
 
-        // Date / time
+        // ── Venue — orangey, slightly smaller ──
         bx.fillStyle = '#FFBF00';
-        bx.font = 'bold 46px Inter, Arial';
-        bx.fillText('2 May 2027  ·  10:00–17:00', W/2, by + 252);
-
-        // Venue
-        bx.fillStyle = 'rgba(255,255,247,0.62)';
-        bx.font = '32px Inter, Arial';
-        bx.fillText('Energy Central Campus, Blyth', W/2, by + 306);
+        bx.font = 'bold 30px Inter, Arial';
+        bx.fillText('Energy Central Campus, Blyth', W/2, by + 348);
 
         const bgTex = new THREE.CanvasTexture(bc);
         scene.background = bgTex;
