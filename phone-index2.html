@@ -1,0 +1,2890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playshapes™ at Energy Central Campus · 2 May 2027</title>
+    <script>
+        // This IS the phone version — no redirect needed.
+        // Desktop link available in UI if user wants to switch.
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --inky:          #1C252E;
+            --orangey:       #FFBF00;
+            --splashy:       #C9EBFF;
+            --milky:         #FFFFF7;
+            --peachy:        #FF7454;
+            --limey:         #C7FF7E;
+            --blackcurranty: #748EFF;
+            --strawberry:    #FF005E;
+        }
+
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+        body { margin: 0; overflow: hidden; background-color: #0a0e1a; }
+
+        #canvas-container {
+            width: 100vw; height: 100vh;
+            position: absolute; top: 0; left: 0; z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 10;
+        }
+
+        /* ── Light panels ── */
+        .panel {
+            background: rgba(255,255,247,0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(28,37,46,0.09);
+            pointer-events: auto;
+        }
+
+        /* ── Bottom toolbar ── */
+        #phone-toolbar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,247,0.95);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(28,37,46,0.10);
+            display: flex; align-items: stretch;
+            padding: 0 4px env(safe-area-inset-bottom, 8px);
+            z-index: 20; pointer-events: auto;
+        }
+        .tb-btn {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 3px; padding: 10px 4px 8px;
+            background: none; border: none; cursor: pointer;
+            font-family: 'Inter', sans-serif; color: rgba(28,37,46,0.5);
+            font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+            transition: color 0.15s, background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 0;
+        }
+        .tb-btn .tb-icon { font-size: 22px; line-height: 1; }
+        .tb-btn .tb-svg  { width: 22px; height: 22px; stroke: currentColor; display: block; }
+        .tb-btn .tb-label { font-size: 10px; font-weight: 600; }
+        .tb-btn:active, .tb-btn.active { color: var(--inky); }
+        .tb-btn.active .tb-icon-wrap { background: var(--orangey); border-radius: 10px; }
+        .tb-btn-remove { color: var(--peachy); }
+        .tb-btn-remove:active { color: #cc4a2a; }
+        .tb-divider { width: 1px; background: rgba(28,37,46,0.1); margin: 10px 0; flex-shrink: 0; }
+
+        /* ── Tool buttons (legacy, kept for JS compat) ── */
+        .tool-btn { display: none; }
+        .btn-remove { display: none; }
+
+        /* ── Hint text ── */
+        .hint-text { font-size: 12px; color: rgba(28,37,46,0.48); line-height: 1.7; }
+        .hint-select { font-size: 12px; font-weight: 700; color: var(--inky); margin-top: 6px; }
+
+        /* ── Photo button ── */
+        #photo-btn-wrap {
+            position: fixed; bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+            left: 50%; transform: translateX(-50%);
+            pointer-events: auto; display: none;
+            flex-direction: column; gap: 10px; align-items: center;
+        }
+        #btn-photo {
+            background: var(--orangey); color: var(--inky);
+            border: none; border-radius: 50px;
+            padding: 14px 32px; font-size: 15px; font-weight: 800;
+            cursor: pointer; letter-spacing: 0.02em; white-space: nowrap;
+            box-shadow: 0 6px 24px rgba(255,191,0,0.4);
+            transition: all 0.18s ease;
+        }
+        #btn-photo:disabled { opacity: 0.45; cursor: default; }
+
+        /* ── Popups open upward from toolbar ── */
+        .toolbar-popup {
+            position: fixed; bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+            left: 8px; right: 8px; max-height: 70vh; overflow-y: auto;
+            background: rgba(255,255,247,0.97);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(28,37,46,0.09);
+            border-radius: 16px; box-shadow: 0 -8px 32px rgba(28,37,46,0.14);
+            padding: 16px; z-index: 50;
+            display: none; pointer-events: auto;
+        }
+        .toolbar-popup.open { display: block; }
+        .popup-wrap { position: static; }
+
+
+        /* ── Three joystick controls ── */
+        #joy-controls {
+            position: fixed;
+            bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+            left: 0; right: 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 0 16px;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0.35;
+            transition: opacity 0.25s;
+        }
+        #joy-controls.active { opacity: 1; }
+        .joy-wrap {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 4px;
+            pointer-events: none;
+        }
+        .joy-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+            color: rgba(28,37,46,0.5); text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+        }
+        .joy-base {
+            width: 110px; height: 110px; border-radius: 50%;
+            background: rgba(255,255,247,0.82); backdrop-filter: blur(12px);
+            border: 2px solid rgba(28,37,46,0.13);
+            position: relative; pointer-events: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Arrow markers on the base */
+        .joy-base::before, .joy-base::after,
+        .joy-arrow-h::before, .joy-arrow-h::after {
+            position: absolute; font-size: 14px; line-height: 1;
+            color: rgba(28,37,46,0.3); pointer-events: none;
+        }
+        /* Move joystick — 4 directional arrows */
+        .joy-base.joy-move::before  { content: '▲'; top: 5px;  left: 50%; transform: translateX(-50%); }
+        .joy-base.joy-move::after   { content: '▼'; bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .joy-base.joy-move .joy-arrow-l::before { content: '◀'; left: 5px;  top: 50%; transform: translateY(-50%); position: absolute; font-size:14px; color:rgba(28,37,46,0.3); }
+        .joy-base.joy-move .joy-arrow-r::before { content: '▶'; right: 5px; top: 50%; transform: translateY(-50%); position: absolute; font-size:14px; color:rgba(28,37,46,0.3); }
+        /* Rotate joystick — curved arrows */
+        .joy-base.joy-rotate::before  { content: '↺'; top: 5px;  left: 50%; transform: translateX(-50%); font-size:18px; }
+        .joy-base.joy-rotate::after   { content: '↻'; bottom: 2px; left: 50%; transform: translateX(-50%); font-size:18px; }
+        .joy-base.joy-rotate .joy-arrow-l::before { content: '↰'; left: 3px;  top: 50%; transform: translateY(-50%); position: absolute; font-size:16px; color:rgba(28,37,46,0.3); }
+        .joy-base.joy-rotate .joy-arrow-r::before { content: '↱'; right: 3px; top: 50%; transform: translateY(-50%); position: absolute; font-size:16px; color:rgba(28,37,46,0.3); }
+        /* Lift joystick — vertical only, constrained */
+        .joy-base.joy-lift::before  { content: '▲'; top: 5px;   left: 50%; transform: translateX(-50%); }
+        .joy-base.joy-lift::after   { content: '▼'; bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .joy-knob {
+            width: 44px; height: 44px; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            pointer-events: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+        }
+        .joy-knob-move   { background: var(--orangey); }
+        .joy-knob-rotate { background: var(--blackcurranty); }
+        .joy-knob-lift   { background: var(--limey); }
+
+        /* ── Lift release button ── */
+        #joy-release-btn {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(28,37,46,0.08);
+            border: 2px solid rgba(28,37,46,0.15);
+            color: rgba(28,37,46,0.35);
+            font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; pointer-events: none;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 2;
+        }
+        #joy-controls.active #joy-release-btn {
+            pointer-events: auto;
+            background: var(--limey);
+            border-color: rgba(28,37,46,0.22);
+            color: var(--inky);
+            box-shadow: 0 0 0 4px rgba(199,255,126,0.35), 0 3px 10px rgba(0,0,0,0.15);
+        }
+        #joy-release-btn:active {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+
+        /* ── Flash overlay ── */
+        #flash-overlay {
+
+        /* ── Gallery entry modal ── */
+        #gallery-modal-backdrop {
+            position: fixed; inset: 0; background: rgba(28,37,46,0.55);
+            backdrop-filter: blur(6px); z-index: 500;
+            display: none; align-items: center; justify-content: center;
+        }
+        #gallery-modal-backdrop.open { display: flex; }
+        #gallery-modal {
+            background: var(--milky); border-radius: 20px;
+            padding: 28px; width: min(480px, 92vw);
+            box-shadow: 0 24px 64px rgba(28,37,46,0.22);
+            font-family: 'Inter', sans-serif; position: relative;
+        }
+        #gallery-modal h2 {
+            font-size: 18px; font-weight: 800; color: var(--inky);
+            margin: 0 0 4px; letter-spacing: -0.01em;
+        }
+        #gallery-modal .modal-sub {
+            font-size: 12px; color: rgba(28,37,46,0.48); margin: 0 0 16px;
+        }
+        #gallery-preview {
+            width: 100%; border-radius: 10px; display: block;
+            border: 2px solid rgba(28,37,46,0.08); margin-bottom: 16px;
+            aspect-ratio: 16/9; object-fit: cover;
+        }
+        #gallery-modal label {
+            display: block; font-size: 12px; font-weight: 700;
+            color: var(--inky); margin-bottom: 5px;
+        }
+        #gallery-email {
+            width: 100%; box-sizing: border-box;
+            background: rgba(28,37,46,0.04);
+            border: 1.5px solid rgba(28,37,46,0.15); border-radius: 10px;
+            padding: 10px 13px; font-size: 14px; color: var(--inky);
+            font-family: 'Inter', sans-serif; outline: none; margin-bottom: 12px;
+        }
+        #gallery-email:focus { border-color: var(--orangey); }
+        .modal-consent {
+            display: flex; gap: 10px; align-items: flex-start;
+            background: rgba(255,191,0,0.08); border-radius: 10px;
+            padding: 12px; margin-bottom: 16px;
+        }
+        .modal-consent input[type=checkbox] {
+            width: 17px; height: 17px; margin-top: 1px;
+            accent-color: var(--orangey); flex-shrink: 0; cursor: pointer;
+        }
+        .modal-consent span {
+            font-size: 12px; color: rgba(28,37,46,0.65); line-height: 1.55;
+        }
+        #gallery-submit {
+            width: 100%; background: var(--orangey); color: var(--inky);
+            border: none; border-radius: 50px; padding: 13px;
+            font-size: 15px; font-weight: 800; cursor: pointer;
+            letter-spacing: 0.02em; transition: all 0.18s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        #gallery-submit:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+        #gallery-submit:disabled { opacity: 0.4; cursor: default; transform: none; }
+        #gallery-modal-close {
+            position: absolute; top: 14px; right: 16px;
+            background: none; border: none; font-size: 20px;
+            cursor: pointer; color: rgba(28,37,46,0.35); line-height: 1;
+            font-family: 'Inter', sans-serif;
+        }
+        #gallery-modal-close:hover { color: var(--inky); }
+        #gallery-status {
+            font-size: 12px; text-align: center;
+            margin-top: 10px; min-height: 16px; font-weight: 600;
+        }
+
+        /* ── Confetti canvas ── */
+        #confetti-canvas {
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            z-index: 100; pointer-events: none;
+        }
+
+        /* ── Locator specifics ── */
+        .eyebrow-label {
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.1em; color: var(--orangey);
+        }
+
+        /* ── Popup panels (locator + help) ── */
+        .toolbar-popup {
+            position: absolute; top: calc(100% + 8px); left: 0;
+            background: rgba(255,255,247,0.96);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(28,37,46,0.09);
+            border-radius: 16px; box-shadow: 0 8px 32px rgba(28,37,46,0.14);
+            padding: 16px; width: 230px; z-index: 50;
+            display: none; pointer-events: auto;
+        }
+        .toolbar-popup.open { display: block; }
+        .popup-wrap { position: relative; }
+
+        @keyframes cube-pulse {
+            0%, 100% { opacity: 0.7; }
+            50%       { opacity: 1.0; }
+        }
+    </style>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three":          "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+            "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/",
+            "cannon-es":      "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+        }
+    }
+    </script>
+</head>
+<body>
+
+<!-- Background music — HTML audio for cross-browser reliability -->
+<audio id="bg-music" src="wobble.mp3" loop preload="auto"></audio>
+
+<div id="canvas-container"></div>
+<canvas id="confetti-canvas"></canvas>
+<div id="flash-overlay"></div>
+
+<!-- Three joystick controls — shown when a piece is selected -->
+<div id="joy-controls" style="flex-direction:row;">
+
+    <!-- Left: Move XZ -->
+    <div class="joy-wrap">
+        <div class="joy-base joy-move" id="joy-move-base">
+            <span class="joy-arrow-l"></span>
+            <span class="joy-arrow-r"></span>
+            <div class="joy-knob joy-knob-move" id="joy-move-knob"></div>
+        </div>
+        <span class="joy-label">Move</span>
+    </div>
+
+    <!-- Centre: Rotate -->
+    <div class="joy-wrap">
+        <div class="joy-base joy-rotate" id="joy-rot-base">
+            <span class="joy-arrow-l"></span>
+            <span class="joy-arrow-r"></span>
+            <div class="joy-knob joy-knob-rotate" id="joy-rot-knob"></div>
+        </div>
+        <span class="joy-label">Rotate</span>
+    </div>
+
+    <!-- Right: Lift/Drop (vertical only) -->
+    <div class="joy-wrap">
+        <div class="joy-base joy-lift" id="joy-lift-base">
+            <div class="joy-knob joy-knob-lift" id="joy-lift-knob"></div>
+            <button id="joy-release-btn" aria-label="Release piece">&#x2715;</button>
+        </div>
+        <span class="joy-label">Lift · Drop</span>
+    </div>
+
+</div>
+
+<!-- Hidden legacy buttons — JS references these for setMode -->
+<div style="display:none;">
+    <button id="btn-translate" class="tool-btn active">Move</button>
+    <button id="btn-rotate" class="tool-btn">Rotate</button>
+    <button id="btn-delete" class="btn-remove">Remove</button>
+    <button id="btn-mute" class="tool-btn">🔊</button>
+    <button id="btn-locator-toggle"></button>
+    <button id="btn-help-toggle"></button>
+    <div id="popup-locator"></div>
+    <div id="popup-help"></div>
+    <input id="finder-postcode"/>
+    <button id="finder-btn"></button>
+    <p id="finder-msg"></p>
+</div>
+
+<!-- Bottom toolbar -->
+<div id="phone-toolbar">
+
+    <!-- Sound -->
+    <button class="tb-btn" id="ptb-mute">
+        <svg class="tb-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" id="ptb-mute-poly"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" id="ptb-mute-waves"/>
+        </svg>
+        <span class="tb-label">Sound</span>
+    </button>
+
+    <!-- Tune (placeholder — wire up later) -->
+    <button class="tb-btn" id="ptb-tune">
+        <svg class="tb-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        </svg>
+        <span class="tb-label">Tune</span>
+    </button>
+
+    <!-- Event Details -->
+    <div class="popup-wrap" style="flex:1;display:flex;">
+        <button class="tb-btn" id="ptb-event" style="flex:1;">
+            <svg class="tb-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="tb-label">Event</span>
+        </button>
+        <div id="ptb-popup-event" class="toolbar-popup">
+            <div style="border-radius:8px;margin-bottom:12px;padding:12px;background:rgba(255,191,0,0.10);">
+                <div class="eyebrow-label" style="margin-bottom:6px;">PLAYSHAPES™ LIVE</div>
+                <p style="font-size:15px;font-weight:800;color:var(--inky);margin:0 0 3px;">2 May 2027</p>
+                <p style="font-size:13px;font-weight:600;color:var(--inky);margin:0 0 2px;">10:00 – 17:00</p>
+                <p style="font-size:12px;color:rgba(28,37,46,0.55);margin:0;">Energy Central Campus, Blyth</p>
+            </div>
+            <p style="font-size:12px;color:rgba(28,37,46,0.6);line-height:1.6;margin:0 0 12px;">Come and play with the real Playshapes™ installation. Free to attend — all ages welcome.</p>
+            <a href="https://maps.app.goo.gl/Blyth-Energy-Central" target="_blank"
+                style="display:block;text-align:center;background:var(--inky);color:#FFFFF7;border-radius:9px;padding:10px 14px;font-size:13px;font-weight:700;text-decoration:none;font-family:'Inter',sans-serif;margin-bottom:0;">📍 Open in Maps</a>
+        </div>
+    </div>
+
+    <!-- Help -->
+    <div class="popup-wrap" style="flex:1;display:flex;">
+        <button class="tb-btn" id="ptb-help" style="flex:1;">
+            <svg class="tb-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span class="tb-label">Help</span>
+        </button>
+        <div id="ptb-popup-help" class="toolbar-popup">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 432 171" style="height:26px;width:auto;display:block;margin-bottom:10px;">
+                <path fill="#1c252e" d="M221.841 46.12H210.26v65.821h11.581zM184.616 46.12h-25.364v65.821h12.037V89.968h13.327c13.053 0 22.17-9.034 22.17-21.97.001-12.881-9.116-21.878-22.17-21.878m-.092 32.458h-13.235V57.42h13.235c6.402 0 10.225 3.955 10.225 10.579s-3.823 10.579-10.225 10.579M290.749 93.294l-12.016-30.489h-12.448v2.113l18.35 43.478-8.313 20.494v2.107h11.893l26.808-65.904.073-.182v-2.106h-11.985z"/>
+                <path fill="#ffbf00" d="M138.374 62.633 104.618 3.892c-12.57 7.257-16.127 1.096-28.697 8.354-12.566 7.255-9.009 13.415-21.575 20.67-12.575 7.261-16.132 1.1-28.706 8.36-12.575 7.26-9.018 13.421-21.593 21.156v46.887l33.756 58.064c12.574-7.26 9.018-13.421 21.592-20.681 12.575-7.26 16.132-1.099 28.707-8.359 12.566-7.255 9.009-13.416 21.575-20.671 12.57-7.257 16.127-1.096 28.697-8.152z"/>
+            </svg>
+            <p class="hint-text">
+                Tap a button to start<br>
+                Tap a piece to select it<br>
+                Drag the scene to look around · Pinch to zoom
+            </p>
+            <svg width="100%" height="1" style="display:block;margin:10px 0;opacity:0.12;"><rect width="100%" height="1" fill="#1C252E"/></svg>
+            <p class="hint-select" style="margin-bottom:4px;">Joysticks</p>
+            <p class="hint-text" style="margin:0;">
+                Joysticks light up when a piece is selected.<br>
+                <strong>Move</strong> (left) — slides across the floor.<br>
+                <strong>Rotate</strong> (centre) — spins and tips.<br>
+                <strong>Lift</strong> (right) — push up to raise, down to drop.<br>
+                Use all three at once with different fingers.
+            </p>
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="popup-wrap" style="flex:1;display:flex;">
+        <button class="tb-btn" id="ptb-contact" style="flex:1;">
+            <svg class="tb-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span class="tb-label">Contact</span>
+        </button>
+        <div id="ptb-popup-contact" class="toolbar-popup">
+            <div style="border-radius:8px;margin-bottom:12px;padding:12px;background:rgba(116,142,255,0.07);">
+                <div class="eyebrow-label" style="margin-bottom:6px;">GET IN TOUCH</div>
+                <p style="font-size:13px;font-weight:700;color:var(--inky);margin:0 0 8px;">Playful™</p>
+                <p style="font-size:12px;color:rgba(28,37,46,0.55);margin:0 0 4px;">📧 hello@playful.com</p>
+                <p style="font-size:12px;color:rgba(28,37,46,0.55);margin:0 0 4px;">📞 +44 (0)XXXX XXXXXX</p>
+                <p style="font-size:12px;color:rgba(28,37,46,0.55);margin:0;">🌐 playful.com</p>
+            </div>
+            <p style="font-size:11px;color:rgba(28,37,46,0.38);line-height:1.6;margin:0;">Interested in bringing Playshapes™ to your venue? We'd love to hear from you.</p>
+        </div>
+    </div>
+
+</div>
+
+    <!-- Take a Photo button -->
+    <div id="photo-btn-wrap" style="display:flex;gap:10px;align-items:center;">
+        <button id="btn-photo">▶ View My Playshape</button>
+        <button id="btn-gallery-entry" style="
+            background: var(--blackcurranty); color: #fff;
+            border: none; border-radius: 50px;
+            padding: 14px 28px; font-size: 15px; font-weight: 800;
+            cursor: pointer; letter-spacing: 0.02em; white-space: nowrap;
+            box-shadow: 0 6px 24px rgba(116,142,255,0.4);
+            transition: all 0.18s ease; font-family:'Inter',sans-serif;
+        ">📷 Submit to Gallery</button>
+    </div>
+
+    <!-- Gallery entry modal -->
+    <div id="gallery-modal-backdrop">
+        <div id="gallery-modal">
+            <button id="gallery-modal-close" title="Close">✕</button>
+            <h2>Submit to the Gallery</h2>
+            <p class="modal-sub">Share your Playshapes creation with the world.</p>
+            <img id="gallery-preview" alt="Your creation"/>
+            <label for="gallery-email">Email address</label>
+            <input id="gallery-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+            <div class="modal-consent">
+                <input type="checkbox" id="gallery-consent"/>
+                <span>I would like to submit my Playshapes construction to be included in the gallery. I consent to my image and email being used for this purpose in line with the Playful privacy policy.</span>
+            </div>
+            <button id="gallery-submit" disabled>Send to Gallery</button>
+            <p id="gallery-status"></p>
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+    import * as THREE  from 'three';
+    import { OrbitControls }     from 'three/addons/controls/OrbitControls.js';
+    import { TransformControls } from 'three/addons/controls/TransformControls.js';
+    import * as CANNON from 'cannon-es';
+    import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+    // ── SCENE ──────────────────────────────────────────────────────────────
+    const container = document.getElementById('canvas-container');
+    const scene     = new THREE.Scene();
+    // ── BACKGROUND — floating stage in space ──────────────────────────────
+    (function buildBackground() {
+        const W = 1024, H = 1024;
+        const bc = document.createElement('canvas');
+        bc.width = W; bc.height = H;
+        const bx = bc.getContext('2d');
+
+        // Deep space base — dark blue-black gradient
+        const base = bx.createRadialGradient(W*0.5, H*0.42, 0, W*0.5, H*0.5, W*0.78);
+        base.addColorStop(0,    '#1a2340');
+        base.addColorStop(0.45, '#0d1528');
+        base.addColorStop(1,    '#060912');
+        bx.fillStyle = base;
+        bx.fillRect(0, 0, W, H);
+
+        // Large background glows — brand colours, soft and deep
+        const glows = [
+            { x: 0.18, y: 0.22, r: 0.38, col: '#748EFF', a: 0.13 }, // blackcurranty top-left
+            { x: 0.82, y: 0.18, r: 0.32, col: '#C9EBFF', a: 0.10 }, // splashy top-right
+            { x: 0.72, y: 0.78, r: 0.40, col: '#FFBF00', a: 0.09 }, // orangey bottom-right
+            { x: 0.22, y: 0.80, r: 0.34, col: '#C7FF7E', a: 0.08 }, // limey bottom-left
+            { x: 0.50, y: 0.35, r: 0.28, col: '#FF7454', a: 0.07 }, // peachy centre-top
+        ];
+        glows.forEach(({ x, y, r, col, a }) => {
+            const g = bx.createRadialGradient(x*W, y*H, 0, x*W, y*H, r*W);
+            g.addColorStop(0,   col + 'ff');
+            g.addColorStop(0.4, col + '44');
+            g.addColorStop(1,   col + '00');
+            bx.globalAlpha = a;
+            bx.fillStyle = g;
+            bx.beginPath();
+            bx.arc(x*W, y*H, r*W, 0, Math.PI*2);
+            bx.fill();
+        });
+        bx.globalAlpha = 1;
+
+        // Stars — tiny white dots at random positions
+        const rng = (seed => () => { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; })(42);
+        for (let i = 0; i < 180; i++) {
+            const sx = rng() * W, sy = rng() * H;
+            const sr = rng() * 1.4 + 0.3;
+            const sa = rng() * 0.6 + 0.25;
+            bx.globalAlpha = sa;
+            bx.fillStyle = '#ffffff';
+            bx.beginPath(); bx.arc(sx, sy, sr, 0, Math.PI*2); bx.fill();
+        }
+        bx.globalAlpha = 1;
+
+        // Brand shapes — distant layer (small, low opacity, blurred feel via shadow)
+        const distShapes = [
+            { t:'ci', x:0.08, y:0.12, s:22, col:'#748EFF', a:0.22, rot:0    },
+            { t:'sq', x:0.92, y:0.10, s:18, col:'#C7FF7E', a:0.18, rot:28   },
+            { t:'tr', x:0.88, y:0.88, s:20, col:'#FFBF00', a:0.20, rot:0    },
+            { t:'di', x:0.10, y:0.88, s:16, col:'#FF7454', a:0.18, rot:45   },
+            { t:'sq', x:0.50, y:0.06, s:14, col:'#C9EBFF', a:0.16, rot:15   },
+            { t:'ci', x:0.78, y:0.50, s:12, col:'#FF005E', a:0.15, rot:0    },
+            { t:'tr', x:0.14, y:0.52, s:15, col:'#C9EBFF', a:0.14, rot:180  },
+            { t:'di', x:0.62, y:0.92, s:13, col:'#748EFF', a:0.16, rot:45   },
+            { t:'sq', x:0.32, y:0.94, s:11, col:'#FFBF00', a:0.14, rot:33   },
+            { t:'ci', x:0.95, y:0.68, s:10, col:'#C7FF7E', a:0.13, rot:0    },
+        ];
+
+        // Mid layer — medium, moderate opacity
+        const midShapes = [
+            { t:'sq', x:0.08, y:0.38, s:36, col:'#748EFF', a:0.30, rot:18   },
+            { t:'tr', x:0.90, y:0.35, s:40, col:'#FFBF00', a:0.28, rot:0    },
+            { t:'ci', x:0.22, y:0.68, s:32, col:'#FF7454', a:0.26, rot:0    },
+            { t:'di', x:0.82, y:0.62, s:30, col:'#C7FF7E', a:0.24, rot:45   },
+            { t:'sq', x:0.55, y:0.88, s:28, col:'#FF005E', a:0.22, rot:42   },
+            { t:'tr', x:0.42, y:0.10, s:34, col:'#C9EBFF', a:0.20, rot:180  },
+        ];
+
+        // Near layer — larger, crisper, higher opacity, outline only
+        const nearShapes = [
+            { t:'sq', x:0.04, y:0.62, s:58, col:'#748EFF', a:0.38, rot:22, outline:true  },
+            { t:'tr', x:0.94, y:0.55, s:64, col:'#FFBF00', a:0.32, rot:0,  outline:true  },
+            { t:'ci', x:0.50, y:0.92, s:52, col:'#FF7454', a:0.28, rot:0,  outline:true  },
+            { t:'di', x:0.18, y:0.05, s:48, col:'#C7FF7E', a:0.30, rot:45, outline:true  },
+            { t:'sq', x:0.88, y:0.08, s:44, col:'#FF005E', a:0.26, rot:55, outline:true  },
+        ];
+
+        function drawBgShape(bx, t, x, y, s, col, a, rot, outline) {
+            bx.save();
+            bx.translate(x * W, y * H);
+            bx.rotate(rot * Math.PI / 180);
+            bx.globalAlpha = a;
+            bx.strokeStyle = bx.fillStyle = col;
+            bx.lineWidth = outline ? 2.5 : 0;
+            bx.beginPath();
+            if (t === 'sq') {
+                outline ? bx.strokeRect(-s/2,-s/2,s,s) : bx.fillRect(-s/2,-s/2,s,s);
+            } else if (t === 'ci') {
+                bx.arc(0,0,s,0,Math.PI*2);
+                outline ? bx.stroke() : bx.fill();
+            } else if (t === 'tr') {
+                bx.moveTo(0,-s); bx.lineTo(s*0.866,s*0.5); bx.lineTo(-s*0.866,s*0.5);
+                bx.closePath(); outline ? bx.stroke() : bx.fill();
+            } else if (t === 'di') {
+                bx.moveTo(0,-s); bx.lineTo(s,0); bx.lineTo(0,s); bx.lineTo(-s,0);
+                bx.closePath(); outline ? bx.stroke() : bx.fill();
+            }
+            bx.restore();
+        }
+
+        [...distShapes, ...midShapes].forEach(sh =>
+            drawBgShape(bx, sh.t, sh.x, sh.y, sh.s, sh.col, sh.a, sh.rot, false)
+        );
+        nearShapes.forEach(sh =>
+            drawBgShape(bx, sh.t, sh.x, sh.y, sh.s, sh.col, sh.a, sh.rot, sh.outline)
+        );
+
+        // Subtle horizon glow — suggests a surface plane receding into distance
+        const horizon = bx.createLinearGradient(0, H*0.52, 0, H*0.68);
+        horizon.addColorStop(0,   'rgba(201,235,255,0.10)');
+        horizon.addColorStop(0.5, 'rgba(116,142,255,0.06)');
+        horizon.addColorStop(1,   'rgba(0,0,0,0)');
+        bx.globalAlpha = 1;
+        bx.fillStyle = horizon;
+        bx.fillRect(0, H*0.52, W, H*0.16);
+
+        // ── Event billboard — painted into background, upper centre ──────
+        // Sits above the horizon so it reads behind the 3D floor at all times.
+        const bw = W, bh = 340;
+        const by = 48; // top of billboard area
+
+        // Dark backing pill
+        bx.globalAlpha = 0.55;
+        bx.fillStyle = '#060912';
+        const r = 36;
+        bx.beginPath();
+        bx.moveTo(64 + r, by); bx.lineTo(bw - 64 - r, by);
+        bx.quadraticCurveTo(bw - 64, by, bw - 64, by + r);
+        bx.lineTo(bw - 64, by + bh - r);
+        bx.quadraticCurveTo(bw - 64, by + bh, bw - 64 - r, by + bh);
+        bx.lineTo(64 + r, by + bh);
+        bx.quadraticCurveTo(64, by + bh, 64, by + bh - r);
+        bx.lineTo(64, by + r);
+        bx.quadraticCurveTo(64, by, 64 + r, by);
+        bx.closePath(); bx.fill();
+        bx.globalAlpha = 1;
+
+        // Orangey accent lines
+        bx.strokeStyle = '#FFBF00'; bx.lineWidth = 4;
+        bx.beginPath(); bx.moveTo(100, by + 52); bx.lineTo(W - 100, by + 52); bx.stroke();
+        bx.globalAlpha = 0.35;
+        bx.beginPath(); bx.moveTo(100, by + bh - 30); bx.lineTo(W - 100, by + bh - 30); bx.stroke();
+        bx.globalAlpha = 1;
+
+        bx.textAlign = 'center'; bx.textBaseline = 'middle';
+
+        // Eyebrow
+        bx.fillStyle = '#FFBF00';
+        bx.font = 'bold 26px Inter, Arial';
+        bx.fillText('PLAYSHAPES™  ·  LIVE INSTALLATION', W/2, by + 82);
+
+        // Headline
+        bx.fillStyle = '#FFFFF7';
+        bx.font = 'bold 88px Inter, Arial';
+        bx.fillText('Come and Play', W/2, by + 172);
+
+        // Date / time
+        bx.fillStyle = '#FFBF00';
+        bx.font = 'bold 46px Inter, Arial';
+        bx.fillText('2 May 2027  ·  10:00–17:00', W/2, by + 252);
+
+        // Venue
+        bx.fillStyle = 'rgba(255,255,247,0.62)';
+        bx.font = '32px Inter, Arial';
+        bx.fillText('Energy Central Campus, Blyth', W/2, by + 306);
+
+        const bgTex = new THREE.CanvasTexture(bc);
+        scene.background = bgTex;
+    })();
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(115, 85, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // ── LIGHTING ───────────────────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    dirLight.position.set(25, 55, 25);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.set(2048, 2048);
+    dirLight.shadow.camera.left   = -60;
+    dirLight.shadow.camera.right  =  60;
+    dirLight.shadow.camera.top    =  60;
+    dirLight.shadow.camera.bottom = -60;
+    scene.add(dirLight);
+
+    // ── FLOOR ──────────────────────────────────────────────────────────────
+    // Animated floor texture — redrawn each frame via updateFloorTexture()
+    const FLOOR_SIZE = 512;
+    const floorCanvas = document.createElement('canvas');
+    floorCanvas.width = floorCanvas.height = FLOOR_SIZE;
+    const floorCtx = floorCanvas.getContext('2d');
+
+    // Shape definitions: [type, x, y, baseSize, color, baseRot, filled, speed, phase, pulse]
+    // speed = rotation speed (rad/s), phase = sin phase offset, pulse = size pulse amount
+    const FLOOR_SHAPES = [
+        // Large filled anchors — slow rotation
+        ['sq',  80,  80, 38, '#FFBF00',  0.0,  true,  0.40, 0.0,  8],
+        ['ci', 256,  70, 32, '#FF7454',  0.0,  true,  0.0,  1.1,  9],
+        ['sq', 430,  90, 34, '#748EFF',  0.3,  true,  0.35, 2.2,  7],
+        ['tr',  70, 256, 36, '#C7FF7E',  0.0,  true,  0.45, 3.3,  8],
+        ['di', 256, 256, 30, '#FF005E', 45.0,  true,  0.55, 0.7,  9],
+        ['ci', 430, 256, 28, '#FFBF00',  0.0,  true,  0.0,  1.8, 10],
+        ['sq',  80, 430, 36, '#FF7454',  0.0,  true,  0.38, 2.6,  8],
+        ['tr', 256, 430, 34, '#748EFF',  0.0,  true,  0.50, 0.4,  7],
+        ['ci', 430, 430, 30, '#C7FF7E',  0.0,  true,  0.0,  3.0,  9],
+        // Medium outlines — faster rotation
+        ['sq', 165, 165, 22, '#FF005E', 10.0, false,  0.70, 1.5,  5],
+        ['tr', 350, 165, 24, '#FFBF00',  0.0, false,  0.80, 2.8,  6],
+        ['ci', 165, 350, 20, '#748EFF',  0.0, false,  0.0,  0.9,  5],
+        ['sq', 350, 350, 22, '#FF7454', 22.0, false,  0.65, 4.0,  6],
+        ['di', 165,  80, 18, '#C7FF7E', 45.0, false,  0.90, 1.2,  4],
+        ['ci', 460, 165, 16, '#FF005E',  0.0, false,  0.0,  3.6,  5],
+        ['tr',  80, 350, 20, '#FFBF00',  0.0, false,  0.75, 2.1,  5],
+        ['di', 350,  80, 20, '#748EFF', 45.0, false,  0.85, 0.5,  4],
+        ['sq',  80, 165, 16, '#C7FF7E', 35.0, false,  0.60, 3.9,  4],
+        // Small accent dots
+        ['ci', 460,  30, 10, '#FFBF00',  0.0,  true,  0.0,  0.3,  4],
+        ['ci',  30, 460, 10, '#FF7454',  0.0,  true,  0.0,  2.4,  4],
+        ['sq', 460, 460, 12, '#748EFF', 15.0,  true,  1.20, 1.7,  3],
+        ['ci', 210, 460, 10, '#C7FF7E',  0.0,  true,  0.0,  4.2,  4],
+        ['ci', 460, 210, 10, '#FF005E',  0.0,  true,  0.0,  3.1,  4],
+        ['sq',  30,  30, 12, '#FFBF00', 20.0,  true,  1.10, 0.8,  3],
+    ];
+
+    function drawFloorShape(cx, type, s, color, filled) {
+        cx.fillStyle = cx.strokeStyle = color;
+        cx.lineWidth = filled ? 0 : 3.5;
+        cx.beginPath();
+        if (type === 'sq') {
+            if (filled) cx.fillRect(-s/2,-s/2,s,s);
+            else        cx.strokeRect(-s/2,-s/2,s,s);
+        } else if (type === 'ci') {
+            cx.arc(0,0,s,0,Math.PI*2);
+            filled ? cx.fill() : cx.stroke();
+        } else if (type === 'tr') {
+            cx.moveTo(0,-s); cx.lineTo(s*0.866,s*0.5); cx.lineTo(-s*0.866,s*0.5);
+            cx.closePath(); filled ? cx.fill() : cx.stroke();
+        } else if (type === 'di') {
+            cx.moveTo(0,-s); cx.lineTo(s,0); cx.lineTo(0,s); cx.lineTo(-s,0);
+            cx.closePath(); filled ? cx.fill() : cx.stroke();
+        }
+    }
+
+    function updateFloorTexture(t) {
+        const cx = floorCtx;
+        const S  = FLOOR_SIZE;
+
+        // Background — warm white
+        cx.fillStyle = '#FFF5EF';
+        cx.fillRect(0, 0, S, S);
+
+        // Subtle grid
+        cx.strokeStyle = 'rgba(255,191,0,0.12)';
+        cx.lineWidth = 0.8;
+        for (let i = 0; i <= S; i += 64) {
+            cx.beginPath(); cx.moveTo(i,0); cx.lineTo(i,S); cx.stroke();
+            cx.beginPath(); cx.moveTo(0,i); cx.lineTo(S,i); cx.stroke();
+        }
+
+        FLOOR_SHAPES.forEach(([type, x, y, baseSize, color, baseRot, filled, speed, phase, pulseAmt]) => {
+            const rot  = (baseRot * Math.PI / 180) + t * speed;
+            const size = baseSize + Math.sin(t * 1.3 + phase) * pulseAmt;
+            const alpha = filled
+                ? 0.72 + Math.sin(t * 0.9 + phase) * 0.12
+                : 0.85 + Math.sin(t * 1.1 + phase) * 0.10;
+            cx.save();
+            cx.translate(x, y);
+            cx.rotate(rot);
+            cx.globalAlpha = alpha;
+            drawFloorShape(cx, type, size, color, filled);
+            cx.restore();
+        });
+    }
+
+    const floorTex = new THREE.CanvasTexture(floorCanvas);
+    floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+    floorTex.repeat.set(10, 10);
+
+    const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(100, 100),
+        new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.85 })
+    );
+    plane.rotation.x = -Math.PI / 2;
+    plane.receiveShadow = true;
+    scene.add(plane);
+
+
+    // ── CONTROLS ───────────────────────────────────────────────────────────
+    const orbit = new OrbitControls(camera, renderer.domElement);
+    orbit.enableDamping  = true;
+    orbit.dampingFactor  = 0.05;
+    orbit.maxPolarAngle  = Math.PI / 2 - 0.05;
+    orbit.target.set(0, 3, 0);
+
+    const transformControl = new TransformControls(camera, renderer.domElement);
+    scene.add(transformControl);
+
+    // ── PHYSICS ────────────────────────────────────────────────────────────
+    const world = new CANNON.World();
+    world.gravity.set(0, -28, 0);
+    world.allowSleep = false;
+    world.broadphase = new CANNON.SAPBroadphase(world);
+    world.solver.iterations = 10;
+    world.solver.tolerance  = 0.01;
+
+    // Low restitution + relaxed contact stiffness — prevents pieces launching on collision
+    world.defaultContactMaterial.restitution                = 0.05;
+    world.defaultContactMaterial.friction                   = 0.5;
+    world.defaultContactMaterial.contactEquationStiffness   = 1e6;
+    world.defaultContactMaterial.contactEquationRelaxation  = 5;
+
+    // Ground
+    const groundBody = new CANNON.Body({ type: CANNON.Body.STATIC });
+    groundBody.addShape(new CANNON.Plane());
+    groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+    groundBody.collisionFilterGroup = 2;
+    groundBody.collisionFilterMask  = -1;
+    world.addBody(groundBody);
+
+    // Boundary walls — thick enough to prevent tunnelling at high launch speeds
+    // Physics wall inner face sits at ±45 (inset 5 from floor edge) so visible lip aligns cleanly
+    const WALL_INNER = 45;  // inner face position
+    const WALL_THICK = 8;   // half-thickness → outer face at ±53
+    const WALL_H     = 60;  // half-height → walls reach y=120, catches all in-air shapes
+    [
+        { pos: [0,        WALL_H, -(WALL_INNER + WALL_THICK)], half: [WALL_INNER + WALL_THICK, WALL_H, WALL_THICK] },
+        { pos: [0,        WALL_H,  (WALL_INNER + WALL_THICK)], half: [WALL_INNER + WALL_THICK, WALL_H, WALL_THICK] },
+        { pos: [-(WALL_INNER + WALL_THICK), WALL_H, 0],        half: [WALL_THICK, WALL_H, WALL_INNER + WALL_THICK] },
+        { pos: [ (WALL_INNER + WALL_THICK), WALL_H, 0],        half: [WALL_THICK, WALL_H, WALL_INNER + WALL_THICK] },
+    ].forEach(({ pos, half }) => {
+        const b = new CANNON.Body({ type: CANNON.Body.STATIC });
+        b.addShape(new CANNON.Box(new CANNON.Vec3(...half)));
+        b.position.set(...pos);
+        b.collisionFilterGroup = 2;
+        b.collisionFilterMask  = -1;
+        world.addBody(b);
+    });
+
+    // ── STATE ──────────────────────────────────────────────────────────────
+    const objects      = [];
+    const meshBodyMap  = new Map();
+    const bodyCooldown = new Map();
+    const emptyRects   = [];
+    let selectedObject = null;
+    let currentMode    = 'translate';
+    let draggedBody    = null;
+    let gameStarted    = false;
+    let frameCount     = 0;
+    const triangleBodies = new Set();
+    let   _triNudgeTick  = 0;
+    const clock        = new THREE.Clock();
+
+    const dragAnchor = new THREE.Object3D();
+    scene.add(dragAnchor);
+
+    // Flyaround
+    let viewingActive = false;
+    let viewAngle     = 0;
+
+    // ── AUDIO ──────────────────────────────────────────────────────────────
+    let audioCtx   = null;
+    let audioReady = false;
+    let audioMuted = false;
+
+    function initAudio() {
+        if (audioReady) return;
+        audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
+        audioReady = true;
+    }
+
+    function getMaster() {
+        if (!audioCtx) return null;
+        if (!getMaster._node) {
+            getMaster._node = audioCtx.createGain();
+            getMaster._node.connect(audioCtx.destination);
+        }
+        getMaster._node.gain.value = audioMuted ? 0 : 1;
+        return getMaster._node;
+    }
+
+    function playThud(vol = 1) {
+        if (!audioReady || audioMuted) return;
+        const master = getMaster(), t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(master); osc.type = 'sine';
+        osc.frequency.setValueAtTime(95, t);
+        osc.frequency.exponentialRampToValueAtTime(28, t + 0.18);
+        gain.gain.setValueAtTime(vol * 1.4, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+        osc.start(t); osc.stop(t + 0.28);
+    }
+
+    function playClunk(vol = 1) {
+        if (!audioReady || audioMuted) return;
+        const master = getMaster(), t = audioCtx.currentTime;
+        const bufLen = Math.floor(audioCtx.sampleRate * 0.12);
+        const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufLen; i++) data[i] = (Math.random()*2-1)*Math.exp(-i/(bufLen*0.3));
+        const src = audioCtx.createBufferSource(); src.buffer = buf;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass'; filter.frequency.value = 650; filter.Q.value = 1.8;
+        const gain = audioCtx.createGain();
+        src.connect(filter); filter.connect(gain); gain.connect(master);
+        gain.gain.setValueAtTime(vol * 1.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        src.start(t);
+    }
+
+    function playPop() {
+        if (!audioReady || audioMuted) return;
+        const master = getMaster(), t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(master); osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, t);
+        osc.frequency.exponentialRampToValueAtTime(180, t + 0.07);
+        gain.gain.setValueAtTime(0.7, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+        osc.start(t); osc.stop(t + 0.09);
+    }
+
+    function addCollisionSound(body) {
+        body.addEventListener('collide', ev => {
+            if (!audioReady || audioMuted) return;
+            const impact = Math.abs(ev.contact.getImpactVelocityAlongNormal());
+            if (impact < 1.8) return;
+            const now = performance.now();
+            if ((now - (bodyCooldown.get(body) || 0)) < 90) return;
+            bodyCooldown.set(body, now);
+            const vol = Math.min(impact / 18, 1);
+            ev.body === groundBody ? playThud(vol) : playClunk(vol);
+        });
+    }
+
+    window.addEventListener('pointerdown', initAudio, { once: true });
+
+    // ── MUSIC (HTML audio — cross-browser) ─────────────────────────────────
+    const bgMusic   = document.getElementById('bg-music');
+    bgMusic.volume  = 0.18;
+
+    function startMusic() {
+        bgMusic.play().catch(() => {});
+    }
+
+    // ── PIECE FACTORIES ────────────────────────────────────────────────────
+    const MIN_DRAG_Y = 1.125;   // floor clamp for dragged pieces
+
+    function makeMat(color) {
+        return new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.05 });
+    }
+
+    // Height (Y extent) of a spec — used for layer stacking
+    function specH(spec) {
+        switch (spec.type) {
+            case 'box':          return spec.h;
+        case 'box_twocolor': return spec.h;
+            case 'bridge':       return 4.5;
+        case 'bridge_flat':  return 2.25;
+            case 'triangle_ra':  return spec.ly;
+            case 'triangle_iso': return spec.h;
+            case 'triangle': return spec.depth;
+            case 'cylinder': return spec.h;
+            case 'semi':     return spec.h;
+            case 'frame':    return 1.125;
+            default:         return 2.25;
+        }
+    }
+
+    // Build a THREE.Mesh for the given spec + colour
+    function createMesh(spec, color) {
+        let mesh;
+        switch (spec.type) {
+            case 'box': {
+                if (spec.twoColor) {
+                    // Two halves merged into one mesh with two materials (yellow + light grey).
+                    // Split along Z for wide beams (w>d), along X for deep beams.
+                    const splitZ = spec.w >= spec.d;
+                    let g1, g2;
+                    if (splitZ) {
+                        g1 = new THREE.BoxGeometry(spec.w, spec.h, spec.d/2); g1.translate(0, 0, -spec.d/4);
+                        g2 = new THREE.BoxGeometry(spec.w, spec.h, spec.d/2); g2.translate(0, 0, +spec.d/4);
+                    } else {
+                        g1 = new THREE.BoxGeometry(spec.w/2, spec.h, spec.d); g1.translate(-spec.w/4, 0, 0);
+                        g2 = new THREE.BoxGeometry(spec.w/2, spec.h, spec.d); g2.translate(+spec.w/4, 0, 0);
+                    }
+                    mesh = new THREE.Mesh(mergeGeometries([g1, g2], true), [makeMat(color), makeMat(0xC8C8C8)]);
+                } else {
+                    const pieceColor = spec.color !== undefined ? spec.color : color;
+                    const mat = spec.matType === 'slab' ? makeSlabMaterials() : makeMat(pieceColor);
+                    mesh = new THREE.Mesh(new THREE.BoxGeometry(spec.w, spec.h, spec.d), mat);
+                }
+                break;
+            }
+            case 'bridge': {
+                // U-arch: 9w × 4.5h × 2.25d — two full-height legs + top lintel
+                const g1 = new THREE.BoxGeometry(2.25, 4.5, 2.25); g1.translate(-3.375, 0, 0);
+                const g2 = new THREE.BoxGeometry(2.25, 4.5, 2.25); g2.translate( 3.375, 0, 0);
+                const g3 = new THREE.BoxGeometry(4.5,  2.25, 2.25); g3.translate(0,  1.125, 0);
+                mesh = new THREE.Mesh(mergeGeometries([g1, g2, g3]), makeMat(color));
+                break;
+            }
+            case 'bridge_flat': {
+                // Flat bridge: 9w × 2.25h × 4.5d — two full-depth legs + back-half lintel
+                // Hole: 4.5w × 2.25h × 2.25d at the front half (local z < 0)
+                const g1 = new THREE.BoxGeometry(2.25, 2.25, 4.5); g1.translate(-3.375, 0, 0);
+                const g2 = new THREE.BoxGeometry(2.25, 2.25, 4.5); g2.translate( 3.375, 0, 0);
+                const g3 = new THREE.BoxGeometry(4.5,  2.25, 2.25); g3.translate(0, 0, 1.125);
+                mesh = new THREE.Mesh(mergeGeometries([g1, g2, g3]), makeMat(color));
+                break;
+            }
+            case 'triangle_ra': {
+                const geoFn = spec.flipY ? mkTriRightGeoInv : mkTriRightGeo;
+                mesh = new THREE.Mesh(geoFn(spec.lx, spec.ly, spec.depth), makeMat(color));
+                break;
+            }
+            case 'triangle_iso': {
+                mesh = new THREE.Mesh(mkTriIsoGeo(spec.base, spec.h, spec.depth), makeMat(color));
+                break;
+            }
+            case 'triangle': {
+                // Right-angle prism: legs lx (X) & lz (Z), height depth (Y)
+                const { lx, lz, depth } = spec;
+                const hy = depth / 2;
+                const v = new Float32Array([
+                    -lx/2,-hy,-lz/2,  lx/2,-hy,-lz/2, -lx/2,-hy, lz/2,
+                    -lx/2, hy,-lz/2,  lx/2, hy,-lz/2, -lx/2, hy, lz/2,
+                ]);
+                const idx = [0,1,2, 3,5,4, 0,3,4,0,4,1, 1,4,5,1,5,2, 0,2,5,0,5,3];
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
+                geo.setIndex(idx);
+                geo.computeVertexNormals();
+                mesh = new THREE.Mesh(geo, makeMat(color));
+                break;
+            }
+            case 'cylinder': {
+                mesh = new THREE.Mesh(
+                    new THREE.CylinderGeometry(spec.r, spec.r, spec.h, 32),
+                    makeMat(color)
+                );
+                break;
+            }
+            case 'semi': {
+                // Half-cylinder arc 0→π (curved side faces +x); flat face closed with a rect
+                const cylG  = new THREE.CylinderGeometry(spec.r, spec.r, spec.h, 32, 1, false, 0, Math.PI);
+                const flatG = new THREE.PlaneGeometry(spec.r * 2, spec.h);
+                flatG.applyMatrix4(new THREE.Matrix4().makeRotationY(Math.PI / 2));
+                mesh = new THREE.Mesh(
+                    mergeGeometries([cylG, flatG]),
+                    new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.05, side: THREE.DoubleSide })
+                );
+                break;
+            }
+            case 'frame': {
+                // 9×9 outer square with Ø4.5 hole — four border bars merged
+                const outer = 9, inner = 4.5, thick = 1.125, bar = (outer - inner) / 2;
+                const g1 = new THREE.BoxGeometry(outer, thick, bar); g1.translate(0, 0, -(inner/2 + bar/2));
+                const g2 = new THREE.BoxGeometry(outer, thick, bar); g2.translate(0, 0,  (inner/2 + bar/2));
+                const g3 = new THREE.BoxGeometry(bar,   thick, inner); g3.translate(-(inner/2 + bar/2), 0, 0);
+                const g4 = new THREE.BoxGeometry(bar,   thick, inner); g4.translate( (inner/2 + bar/2), 0, 0);
+                mesh = new THREE.Mesh(mergeGeometries([g1, g2, g3, g4]), makeMat(color));
+                break;
+            }
+        }
+        mesh.castShadow = mesh.receiveShadow = true;
+        if (spec.ry) mesh.rotation.y = spec.ry;
+        return mesh;
+    }
+
+    // Create fresh CANNON shapes from spec (call separately for static and dynamic to avoid sharing)
+    // isStatic=true → use simple Box for triangle types (avoids ConvexPolyhedron static collision issues)
+    function createPhysShapes(spec, isStatic) {
+        switch (spec.type) {
+            case 'box':
+                return [{ s: new CANNON.Box(new CANNON.Vec3(spec.w/2, spec.h/2, spec.d/2)) }];
+            case 'bridge':
+                return [
+                    { s: new CANNON.Box(new CANNON.Vec3(1.125, 2.25, 1.125)), o: new CANNON.Vec3(-3.375, 0, 0) },
+                    { s: new CANNON.Box(new CANNON.Vec3(1.125, 2.25, 1.125)), o: new CANNON.Vec3( 3.375, 0, 0) },
+                    { s: new CANNON.Box(new CANNON.Vec3(2.25, 1.125, 1.125)), o: new CANNON.Vec3(0, 1.125, 0) },
+                ];
+            case 'bridge_flat':
+                // Legs: full depth (Z=4.5). Lintel: back half (z offset +1.125).
+                // CANNON rotates offsets with body quaternion, so ry on the body
+                // correctly places the lintel and leaves the front-half hole open.
+                return [
+                    { s: new CANNON.Box(new CANNON.Vec3(1.125, 1.125, 2.25)), o: new CANNON.Vec3(-3.375, 0, 0) },
+                    { s: new CANNON.Box(new CANNON.Vec3(1.125, 1.125, 2.25)), o: new CANNON.Vec3( 3.375, 0, 0) },
+                    { s: new CANNON.Box(new CANNON.Vec3(2.25, 1.125, 1.125)), o: new CANNON.Vec3(0, 0, 1.125) },
+                ];
+            case 'triangle_ra': {
+                // Static stack bodies use Box — reliable collision with all dynamic pieces.
+                // Dynamic bodies use ConvexPolyhedron — exact shape prevents impossible balance.
+                if (isStatic) return [{ s: new CANNON.Box(new CANNON.Vec3(spec.lx/2, spec.ly/2, spec.depth/2)) }];
+                const hw=spec.lx/2, hh=spec.ly/2, hd=spec.depth/2;
+                if (spec.flipY) {
+                    const v=[new CANNON.Vec3(-hw,+hh,-hd),new CANNON.Vec3(+hw,+hh,-hd),new CANNON.Vec3(-hw,-hh,-hd),
+                             new CANNON.Vec3(-hw,+hh,+hd),new CANNON.Vec3(+hw,+hh,+hd),new CANNON.Vec3(-hw,-hh,+hd)];
+                    return [{ s: new CANNON.ConvexPolyhedron({ vertices:v, faces:[
+                        [2,0,1],[3,5,4],[0,3,4,1],[0,2,5,3],[1,4,5,2]
+                    ]}) }];
+                }
+                const v=[new CANNON.Vec3(-hw,-hh,-hd),new CANNON.Vec3(+hw,-hh,-hd),new CANNON.Vec3(-hw,+hh,-hd),
+                         new CANNON.Vec3(-hw,-hh,+hd),new CANNON.Vec3(+hw,-hh,+hd),new CANNON.Vec3(-hw,+hh,+hd)];
+                return [{ s: new CANNON.ConvexPolyhedron({ vertices:v, faces:[
+                    [0,2,1],[3,4,5],[0,1,4,3],[0,3,5,2],[1,2,5,4]
+                ]}) }];
+            }
+            case 'triangle_iso': {
+                if (isStatic) return [{ s: new CANNON.Box(new CANNON.Vec3(spec.base/2, spec.h/2, spec.depth/2)) }];
+                const hb=spec.base/2, hh=spec.h/2, hd=spec.depth/2;
+                const v=[new CANNON.Vec3(-hb,-hh,-hd),new CANNON.Vec3(+hb,-hh,-hd),new CANNON.Vec3(0,+hh,-hd),
+                         new CANNON.Vec3(-hb,-hh,+hd),new CANNON.Vec3(+hb,-hh,+hd),new CANNON.Vec3(0,+hh,+hd)];
+                return [{ s: new CANNON.ConvexPolyhedron({ vertices:v, faces:[
+                    [0,2,1],[3,4,5],[0,1,4,3],[0,3,5,2],[1,2,5,4]
+                ]}) }];
+            }
+            case 'triangle': {
+                const { lx, lz, depth } = spec;
+                return [{ s: new CANNON.Box(new CANNON.Vec3(lx/4, depth/2, lz/4)) }];
+            }
+            case 'cylinder':
+                return [{ s: new CANNON.Cylinder(spec.r, spec.r, spec.h, 12) }];
+            case 'semi':
+                return [{ s: new CANNON.Box(new CANNON.Vec3(spec.r/2, spec.h/2, spec.r)), o: new CANNON.Vec3(spec.r/2, 0, 0) }];
+            case 'frame': {
+                const outer = 9, inner = 4.5, thick = 1.125, bar = (outer - inner) / 2;
+                return [
+                    { s: new CANNON.Box(new CANNON.Vec3(outer/2, thick/2, bar/2)),  o: new CANNON.Vec3(0, 0, -(inner/2 + bar/2)) },
+                    { s: new CANNON.Box(new CANNON.Vec3(outer/2, thick/2, bar/2)),  o: new CANNON.Vec3(0, 0,  (inner/2 + bar/2)) },
+                    { s: new CANNON.Box(new CANNON.Vec3(bar/2, thick/2, inner/2)), o: new CANNON.Vec3(-(inner/2 + bar/2), 0, 0) },
+                    { s: new CANNON.Box(new CANNON.Vec3(bar/2, thick/2, inner/2)), o: new CANNON.Vec3( (inner/2 + bar/2), 0, 0) },
+                ];
+            }
+        }
+    }
+
+    function makeBody(spec, isStatic, wx, wy, wz) {
+        const body = isStatic
+            ? new CANNON.Body({ type: CANNON.Body.STATIC })
+            : new CANNON.Body({ mass: 1, linearDamping: 0.15, angularDamping: 0.88, allowSleep: false });
+        body.collisionFilterGroup = isStatic ? 2 : 1;
+        body.collisionFilterMask  = -1;
+        createPhysShapes(spec, isStatic).forEach(({ s, o }) => body.addShape(s, o || new CANNON.Vec3()));
+        body.position.set(wx, wy, wz);
+        if (spec.ry) body.quaternion.setFromEuler(0, spec.ry, 0);
+        return body;
+    }
+
+    // ── SLAB STRIPE TEXTURES ───────────────────────────────────────────────
+    // Each slab = 8 foam layers × ~28mm = 225mm total
+    //   Outer top + bottom layers: 32 alternating B/W strips
+    //   Inner 6 layers: solid alternating full sheets
+    (function buildSlabTextures() {
+        const BLK = '#1a1a1a', WHT = '#efefef', STRIPS = 32, INNER = 6;
+        window._slabTopTex = () => {
+            const c = document.createElement('canvas'); c.width = c.height = 512;
+            const ctx = c.getContext('2d'), sw = 512 / STRIPS;
+            for (let i = 0; i < STRIPS; i++) { ctx.fillStyle = i%2===0?BLK:WHT; ctx.fillRect(i*sw,0,sw,512); }
+            return new THREE.CanvasTexture(c);
+        };
+        window._slabSideTex = () => {
+            const cw=512, ch=128, c=document.createElement('canvas');
+            c.width=cw; c.height=ch; const ctx=c.getContext('2d');
+            const outerH=ch/8, innerH=(ch-2*outerH)/INNER, sw=cw/STRIPS;
+            for (let i=0;i<STRIPS;i++){ctx.fillStyle=i%2===0?BLK:WHT;ctx.fillRect(i*sw,0,sw,outerH);}
+            for (let i=0;i<INNER;i++){ctx.fillStyle=i%2===0?BLK:WHT;ctx.fillRect(0,outerH+i*innerH,cw,innerH);}
+            for (let i=0;i<STRIPS;i++){ctx.fillStyle=i%2===0?BLK:WHT;ctx.fillRect(i*sw,ch-outerH,sw,outerH);}
+            return new THREE.CanvasTexture(c);
+        };
+    })();
+    // Right-angle isosceles prism — doorstop. Right angle at (-lx/2,-ly/2), ridge at (-lx/2,+ly/2).
+    function mkTriRightGeo(lx, ly, depth) {
+        const hw=lx/2,hh=ly/2,hd=depth/2;
+        const pos=new Float32Array([-hw,-hh,-hd, hw,-hh,-hd, -hw,hh,-hd, -hw,-hh,hd, hw,-hh,hd, -hw,hh,hd]);
+        const geo=new THREE.BufferGeometry();
+        geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+        geo.setIndex([0,2,1, 3,4,5, 0,1,4,0,4,3, 0,3,5,0,5,2, 1,2,5,1,5,4]);
+        geo.computeVertexNormals();
+        return geo;
+    }
+    // Inverted right-angle prism — ridge at (-lx/2,-ly/2) BOTTOM, flat base at y=+ly/2 TOP.
+    // Visually identical to flipY version but geometry is native — ConvexPolyhedron matches exactly.
+    function mkTriRightGeoInv(lx, ly, depth) {
+        const hw=lx/2,hh=ly/2,hd=depth/2;
+        const pos=new Float32Array([-hw,+hh,-hd, +hw,+hh,-hd, -hw,-hh,-hd, -hw,+hh,+hd, +hw,+hh,+hd, -hw,-hh,+hd]);
+        const geo=new THREE.BufferGeometry();
+        geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+        geo.setIndex([2,0,1, 3,5,4, 0,3,4,0,4,1, 0,2,5,0,5,3, 1,4,5,1,5,2]);
+        geo.computeVertexNormals();
+        return geo;
+    }
+    // Isosceles prism — tent/peak. Apex at (0,+h/2), base flat on floor.
+    function mkTriIsoGeo(base, h, depth) {
+        const hb=base/2,hh=h/2,hd=depth/2;
+        const pos=new Float32Array([-hb,-hh,-hd, hb,-hh,-hd, 0,hh,-hd, -hb,-hh,hd, hb,-hh,hd, 0,hh,hd]);
+        const geo=new THREE.BufferGeometry();
+        geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+        geo.setIndex([0,2,1, 3,4,5, 0,1,4,0,4,3, 0,3,5,0,5,2, 1,2,5,1,5,4]);
+        geo.computeVertexNormals();
+        return geo;
+    }
+
+    function makeSlabMaterials() {
+        const top  = new THREE.MeshStandardMaterial({ map: window._slabTopTex(),  roughness:0.55, metalness:0.0 });
+        const side = new THREE.MeshStandardMaterial({ map: window._slabSideTex(), roughness:0.55, metalness:0.0 });
+        return [side, side, top, top, side, side]; // +X,-X,+Y,-Y,+Z,-Z
+    }
+
+    // ── CUBE CONFIGS ───────────────────────────────────────────────────────
+    const CUBE_CONFIGS = [
+        // PL006 Slab — black/white stripes — back-left   (4 layers × 1 slab = 4 pieces)
+        {
+            pos: { x: -20, z: -33 }, color: 0x2a2a2a,
+            layers: [
+                [{ type:'box', w:9, h:2.25, d:9, ox:0, oz:0, matType:'slab' }],
+                [{ type:'box', w:9, h:2.25, d:9, ox:0, oz:0, matType:'slab' }],
+                [{ type:'box', w:9, h:2.25, d:9, ox:0, oz:0, matType:'slab' }],
+                [{ type:'box', w:9, h:2.25, d:9, ox:0, oz:0, matType:'slab' }],
+            ]
+        },
+        // PL004 Small Beam — yellow/grey — back-centre
+        // 16 pieces (4 layers × 4 beams). Each beam is one piece visually split
+        // into yellow + light grey halves via two-material merged geometry.
+        {
+            pos: { x: 0, z: -33 }, color: 0xFFCC00,
+            layers: [
+                [
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:-3.375, twoColor:true },
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:-1.125, twoColor:true },
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:+1.125, twoColor:true },
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:+3.375, twoColor:true },
+                ],
+                [
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:-3.375, oz:0, twoColor:true },
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:-1.125, oz:0, twoColor:true },
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:+1.125, oz:0, twoColor:true },
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:+3.375, oz:0, twoColor:true },
+                ],
+                [
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:-3.375, twoColor:true },
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:-1.125, twoColor:true },
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:+1.125, twoColor:true },
+                    { type:'box', w:9,    h:2.25, d:2.25, ox:0,      oz:+3.375, twoColor:true },
+                ],
+                [
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:-3.375, oz:0, twoColor:true },
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:-1.125, oz:0, twoColor:true },
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:+1.125, oz:0, twoColor:true },
+                    { type:'box', w:2.25, h:2.25, d:9,    ox:+3.375, oz:0, twoColor:true },
+                ],
+            ]
+        },
+        // PL005 Triangles — near-black — back-right  (7 pieces: 1 large + 2 medium + 4 small)
+        {
+            pos: { x: 20, z: -33 }, color: 0x1a1a2e, launchScale: 0.06, angularDamping: 0.5, isTriangle: true,
+            layers: [
+                [
+                    { type:'triangle_ra',  lx:9,   ly:9,   depth:9,   ox:0,    oz:0,     ry:0,        flipY:true, launchOverride:0.55 },
+                    { type:'triangle_iso', base:9, h:4.5,  depth:4.5, ox:0,    oz:-2.25, ry:0 },
+                    { type:'triangle_iso', base:9, h:4.5,  depth:4.5, ox:0,    oz:+2.25, ry:0 },
+                    { type:'triangle_ra',  lx:4.5, ly:4.5, depth:4.5, ox:2.25, oz:-2.25, ry:Math.PI, flipY:true },
+                    { type:'triangle_ra',  lx:4.5, ly:4.5, depth:4.5, ox:2.25, oz:+2.25, ry:Math.PI, flipY:true },
+                    { type:'triangle_ra',  lx:4.5, ly:4.5, depth:4.5, ox:2.25, oz:-2.25, ry:Math.PI, oy:4.5 },
+                    { type:'triangle_ra',  lx:4.5, ly:4.5, depth:4.5, ox:2.25, oz:+2.25, ry:Math.PI, oy:4.5 },
+                ],
+            ]
+        },
+        // PL003 Large Beam — blue — front-left       (4 layers × 2 beams = 8 pieces, alternating X/Z)
+        {
+            pos: { x: -20, z: 33 }, color: 0x3d9be9,
+            layers: [
+                [
+                    { type:'box', w:9,   h:2.25, d:4.5, ox:0,     oz:-2.25 },
+                    { type:'box', w:9,   h:2.25, d:4.5, ox:0,     oz:+2.25 },
+                ],
+                [
+                    { type:'box', w:4.5, h:2.25, d:9,   ox:-2.25, oz:0 },
+                    { type:'box', w:4.5, h:2.25, d:9,   ox:+2.25, oz:0 },
+                ],
+                [
+                    { type:'box', w:9,   h:2.25, d:4.5, ox:0,     oz:-2.25 },
+                    { type:'box', w:9,   h:2.25, d:4.5, ox:0,     oz:+2.25 },
+                ],
+                [
+                    { type:'box', w:4.5, h:2.25, d:9,   ox:-2.25, oz:0 },
+                    { type:'box', w:4.5, h:2.25, d:9,   ox:+2.25, oz:0 },
+                ],
+            ]
+        },
+        // PL001 Bridge — hot pink — front-centre
+        // 4 layers × (2 flat bridges + 1 long filler + 2 small cubes) = 20 pieces
+        // Bridges laid flat (9×2.25×4.5). Holes face inward and meet at cube centre.
+        // Alternating filler arrangement: long filler and 2× small cubes swap sides each layer.
+        {
+            pos: { x: 0, z: 33 }, color: 0xFF1493,
+            layers: [
+                // Layer 1 (bottom): long filler in A-hole (z<0), small cubes in B-hole (z>0)
+                [
+                    { type:'bridge_flat', ox:0, oz:-2.25, ry:Math.PI },
+                    { type:'bridge_flat', ox:0, oz:+2.25 },
+                    { type:'box', w:4.5,  h:2.25, d:2.25, ox:0,      oz:-1.125 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:-1.125, oz:+1.125 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:+1.125, oz:+1.125 },
+                ],
+                // Layer 2: small cubes in A-hole, long filler in B-hole
+                [
+                    { type:'bridge_flat', ox:0, oz:-2.25, ry:Math.PI },
+                    { type:'bridge_flat', ox:0, oz:+2.25 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:-1.125, oz:-1.125 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:+1.125, oz:-1.125 },
+                    { type:'box', w:4.5,  h:2.25, d:2.25, ox:0,      oz:+1.125 },
+                ],
+                // Layer 3: long filler in A-hole, small cubes in B-hole
+                [
+                    { type:'bridge_flat', ox:0, oz:-2.25, ry:Math.PI },
+                    { type:'bridge_flat', ox:0, oz:+2.25 },
+                    { type:'box', w:4.5,  h:2.25, d:2.25, ox:0,      oz:-1.125 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:-1.125, oz:+1.125 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:+1.125, oz:+1.125 },
+                ],
+                // Layer 4 (top, dispensed first): small cubes in A-hole, long filler in B-hole
+                [
+                    { type:'bridge_flat', ox:0, oz:-2.25, ry:Math.PI },
+                    { type:'bridge_flat', ox:0, oz:+2.25 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:-1.125, oz:-1.125 },
+                    { type:'box', w:2.25, h:2.25, d:2.25, ox:+1.125, oz:-1.125 },
+                    { type:'box', w:4.5,  h:2.25, d:2.25, ox:0,      oz:+1.125 },
+                ],
+            ]
+        },
+    ];
+
+    // ── PLAY CUBE CLASS ────────────────────────────────────────────────────
+    class PlayCube {
+        constructor(config) {
+            this.pos           = config.pos;
+            this.color         = config.color;
+            this.launchScale   = config.launchScale   !== undefined ? config.launchScale   : 1;
+            this.angularDamping = config.angularDamping !== undefined ? config.angularDamping : 0.88;
+            this.spinMult      = config.spinMult       !== undefined ? config.spinMult       : 1;
+            this.isTriangle    = !!config.isTriangle;
+            // builtLayers[i] = array of { mesh, sb, spec, wx, wy, wz }  (bottom → top)
+            this.builtLayers = [];
+
+            let baseY = 0;
+            for (const layerSpec of config.layers) {
+                // Layer height = max(specH + oy) across all pieces in this layer
+                const lh = Math.max(...layerSpec.map(s => specH(s) + (s.oy || 0)));
+
+                const pieces = layerSpec.map(spec => {
+                    const ph = specH(spec);
+                    const wx = this.pos.x + (spec.ox || 0);
+                    const wy = baseY + ph / 2 + (spec.oy || 0);
+                    const wz = this.pos.z + (spec.oz || 0);
+
+                    const mesh = createMesh(spec, this.color);
+                    mesh.position.set(wx, wy, wz);
+                    mesh.userData.cubeRef       = this;
+                    mesh.userData.isStack       = true;
+                    mesh.userData.pieceSpecType = spec.type;
+                    mesh.userData.pieceDims     = { w: spec.w||0, h: specH(spec), d: spec.d||0 };
+                    scene.add(mesh);
+
+                    const sb = makeBody(spec, true, wx, wy, wz);
+                    world.addBody(sb);
+
+                    return { mesh, sb, spec, wx, wy, wz };
+                });
+
+                this.builtLayers.push(pieces);
+                baseY += lh;
+            }
+        }
+
+        get stackMeshes() {
+            return this.builtLayers.flatMap(l => l.map(p => p.mesh));
+        }
+
+        dispenseLayer(isAutoLaunch = false) {
+            if (!this.builtLayers.length) return;
+            const layer = this.builtLayers.pop();
+
+            layer.forEach(({ mesh, sb, spec, wx, wy, wz }) => {
+                world.removeBody(sb);
+                mesh.userData.isStack = false;
+
+                // Fresh dynamic body — can't reuse shapes from the static body
+                const body = makeBody(spec, false, wx, wy, wz);
+                body.angularDamping = this.angularDamping;
+                if (this.isTriangle) {
+                    body._dispensedAt = performance.now();
+                    triangleBodies.add(body);
+                }
+
+                const landX = (Math.random() - 0.5) * 14;
+                const landZ = (Math.random() - 0.5) * 14;
+                const dx    = landX - wx;
+                const dz    = landZ - wz;
+                const dist  = Math.sqrt(dx * dx + dz * dz);
+                const ls    = spec.launchOverride !== undefined ? spec.launchOverride : this.launchScale;
+                const speed = isAutoLaunch ? (52 + Math.random() * 10) * ls : (38 + Math.random() * 14) * ls;
+                body.velocity.set(
+                    (dx / dist) * speed,
+                    ((isAutoLaunch ? 22 : 15) + Math.random() * 6) * ls,
+                    (dz / dist) * speed
+                );
+                body.angularVelocity.set(
+                    (Math.random() - 0.5) * 9 * this.spinMult,
+                    (Math.random() - 0.5) * 9 * this.spinMult,
+                    (Math.random() - 0.5) * 9 * this.spinMult
+                );
+
+                world.addBody(body);
+                meshBodyMap.set(mesh, body);
+                addCollisionSound(body);
+                objects.push(mesh);
+                playPop();
+            });
+
+            if (!this.builtLayers.length) this._showEmptyRect();
+        }
+
+        // Dispense a specific stacked piece silently (zero velocity) so it can be selected
+        dispenseSinglePiece(targetMesh) {
+            for (let li = 0; li < this.builtLayers.length; li++) {
+                const layer = this.builtLayers[li];
+                const idx   = layer.findIndex(p => p.mesh === targetMesh);
+                if (idx === -1) continue;
+
+                const { mesh, sb, spec, wx, wy, wz } = layer.splice(idx, 1)[0];
+                if (layer.length === 0) {
+                    this.builtLayers.splice(li, 1);
+                    if (!this.builtLayers.length) this._showEmptyRect();
+                }
+
+                world.removeBody(sb);
+                mesh.userData.isStack = false;
+
+                const body = makeBody(spec, false, wx, wy, wz);
+                body.angularDamping = this.angularDamping;
+                if (this.isTriangle) { body._dispensedAt = performance.now(); triangleBodies.add(body); }
+                body.velocity.setZero();
+                body.angularVelocity.setZero();
+
+                world.addBody(body);
+                meshBodyMap.set(mesh, body);
+                addCollisionSound(body);
+                objects.push(mesh);
+                // Drop any layers still stacked above — they're now unsupported
+                this.releaseRemainingLayers();
+                return mesh;
+            }
+            return null;
+        }
+
+        // After any dispense, drop remaining static layers as zero-velocity dynamic bodies
+        releaseRemainingLayers() {
+            if (!this.builtLayers.length) return;
+            const allLayers = this.builtLayers.splice(0);
+            for (const layer of allLayers) {
+                layer.forEach(({ mesh, sb, spec, wx, wy, wz }) => {
+                    world.removeBody(sb);
+                    mesh.userData.isStack = false;
+                    const body = makeBody(spec, false, wx, wy, wz);
+                    body.angularDamping = this.angularDamping;
+                    if (this.isTriangle) { body._dispensedAt = performance.now(); triangleBodies.add(body); }
+                    body.velocity.setZero(); body.angularVelocity.setZero();
+                    world.addBody(body);
+                    meshBodyMap.set(mesh, body);
+                    addCollisionSound(body);
+                    objects.push(mesh);
+                });
+            }
+            this._showEmptyRect();
+        }
+
+        _showEmptyRect() {
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0xFFBF00, emissive: 0xFFBF00,
+                emissiveIntensity: 0.6, transparent: true, opacity: 0.5,
+            });
+            const rect = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), mat);
+            rect.rotation.x = -Math.PI / 2;
+            rect.position.set(this.pos.x, 0.02, this.pos.z);
+            scene.add(rect);
+            emptyRects.push(rect);
+        }
+    }
+
+    const playCubes = CUBE_CONFIGS.map(cfg => new PlayCube(cfg));
+
+    // ── CIRCLE CUBE (PL002) — separate class: combined body + timed split ──
+    // Geometry builders
+    const _C = { OUTER:4.5, H:2.25, HOLE_R:2.27, CYL_R:2.25, SPLIT_MS:1400 };
+
+    (function buildCircleGeos() {
+        const shape = new THREE.Shape();
+        shape.moveTo(-_C.OUTER,-_C.OUTER); shape.lineTo(_C.OUTER,-_C.OUTER);
+        shape.lineTo(_C.OUTER,_C.OUTER);   shape.lineTo(-_C.OUTER,_C.OUTER);
+        shape.closePath();
+        const hole = new THREE.Path();
+        hole.absarc(0,0,_C.HOLE_R,0,Math.PI*2,false);
+        shape.holes.push(hole);
+        const fg = new THREE.ExtrudeGeometry(shape,{depth:_C.H,bevelEnabled:false,curveSegments:48});
+        fg.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI/2));
+        fg.translate(0,-_C.H/2,0);
+        _C.frameGeo = fg;
+
+        _C.cylGeo = new THREE.CylinderGeometry(_C.CYL_R,_C.CYL_R,_C.H,48);
+
+        const arc  = new THREE.CylinderGeometry(_C.CYL_R,_C.CYL_R,_C.H,48,1,false,0,Math.PI);
+        const flat = new THREE.PlaneGeometry(_C.CYL_R*2,_C.H);
+        flat.applyMatrix4(new THREE.Matrix4().makeRotationY(Math.PI/2));
+        _C.semiGeo = mergeGeometries([arc,flat]);
+    })();
+
+    function _cMat() {
+        return new THREE.MeshStandardMaterial({color:0x8a8a8a,roughness:0.5,metalness:0.05,side:THREE.DoubleSide});
+    }
+    function _cAddFrame(b) {
+        // 8 arc boxes arranged around the ring — inner boundary is octagonal, closely matching
+        // the circular visual hole. Each box's Z axis points radially outward.
+        const hh   = _C.H / 2;
+        const N    = 8;
+        const rMid = (_C.OUTER + _C.HOLE_R) / 2;            // ring centre radius ≈ 3.385
+        const hw   = (_C.OUTER - _C.HOLE_R) / 2;            // radial half-depth ≈ 1.115
+        const ht   = rMid * Math.tan(Math.PI / N) + 0.12;   // tangential half-width ≈ 1.53 (with overlap)
+        for (let i = 0; i < N; i++) {
+            const a = (i / N) * Math.PI * 2;
+            const q = new CANNON.Quaternion();
+            q.setFromEuler(0, Math.PI / 2 - a, 0); // local Z → radial outward at angle a
+            b.addShape(
+                new CANNON.Box(new CANNON.Vec3(ht, hh, hw)),
+                new CANNON.Vec3(rMid * Math.cos(a), 0, rMid * Math.sin(a)),
+                q
+            );
+        }
+        // 4 corner boxes to fill the square corners beyond the arc ring
+        const cOff = _C.OUTER - 1.0;
+        [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sz]) => {
+            b.addShape(
+                new CANNON.Box(new CANNON.Vec3(1.0, hh, 1.0)),
+                new CANNON.Vec3(sx * cOff, 0, sz * cOff)
+            );
+        });
+    }
+    function _cAddCyl(b)   { b.addShape(new CANNON.Cylinder(_C.CYL_R,_C.CYL_R,_C.H,12)); }
+    function _cAddSemi(b,ry) {
+        const q=new CANNON.Quaternion(); q.setFromEuler(0,ry,0);
+        b.addShape(new CANNON.Box(new CANNON.Vec3(_C.CYL_R/2,_C.H/2,_C.CYL_R)),new CANNON.Vec3(_C.CYL_R/2,0,0),q);
+    }
+
+    class CircleCube {
+        constructor(pos) {
+            this.pos      = pos;
+            this._layers  = [];   // { pieces, staticBody, wy, useFullCircle }
+            this._flying  = [];   // { combinedBody, pieces, splitAt }
+
+            this._buildStack();
+        }
+
+        get stackMeshes() { return this._layers.flatMap(l => l.pieces.map(p => p.mesh)); }
+
+        _buildStack() {
+            for (let i = 0; i < 4; i++) {
+                const wy = _C.H/2 + i*_C.H;
+                const full = (i >= 2);
+                const pieces = [];
+
+                // Frame mesh
+                const fm = new THREE.Mesh(_C.frameGeo, _cMat());
+                fm.position.set(this.pos.x, wy, this.pos.z);
+                fm.castShadow = fm.receiveShadow = true;
+                fm.userData.isStack = true; fm.userData.cubeRef = this;
+                scene.add(fm);
+                pieces.push({ mesh:fm, type:'frame', ry:0 });
+
+                if (full) {
+                    // Full cylinder
+                    const cm = new THREE.Mesh(_C.cylGeo, _cMat());
+                    cm.position.set(this.pos.x, wy, this.pos.z);
+                    cm.castShadow = cm.receiveShadow = true;
+                    cm.userData.isStack = true; cm.userData.cubeRef = this;
+                    scene.add(cm);
+                    pieces.push({ mesh:cm, type:'cyl', ry:0 });
+                } else {
+                    // Two semi-circles
+                    for (const ry of [0, Math.PI]) {
+                        const sm = new THREE.Mesh(_C.semiGeo, _cMat());
+                        sm.position.set(this.pos.x, wy, this.pos.z);
+                        sm.rotation.y = ry;
+                        sm.castShadow = sm.receiveShadow = true;
+                        sm.userData.isStack = true; sm.userData.cubeRef = this;
+                        scene.add(sm);
+                        pieces.push({ mesh:sm, type:'semi', ry });
+                    }
+                }
+
+                // ONE static body for the whole layer
+                const sb = new CANNON.Body({ type: CANNON.Body.STATIC });
+                _cAddFrame(sb);
+                if (full) { _cAddCyl(sb); } else { _cAddSemi(sb,0); _cAddSemi(sb,Math.PI); }
+                sb.position.set(this.pos.x, wy, this.pos.z);
+                sb.collisionFilterGroup = 2; sb.collisionFilterMask = -1;
+                world.addBody(sb);
+
+                this._layers.push({ pieces, staticBody:sb, wy, full });
+            }
+        }
+
+        dispenseLayer(isAutoLaunch = false) {
+            if (!this._layers.length) return;
+            const { pieces, staticBody, wy, full } = this._layers.pop();
+            world.removeBody(staticBody);
+            pieces.forEach(p => { p.mesh.userData.isStack = false; });
+
+            // ONE combined dynamic body
+            const cb = new CANNON.Body({ mass:1, linearDamping:0.12, angularDamping:0.6,
+                allowSleep:false, collisionFilterGroup:1, collisionFilterMask:-1 });
+            _cAddFrame(cb);
+            if (full) { _cAddCyl(cb); } else { _cAddSemi(cb,0); _cAddSemi(cb,Math.PI); }
+            cb.position.set(this.pos.x, wy, this.pos.z);
+
+            if (isAutoLaunch) {
+                const lx=(Math.random()-0.5)*14, lz=(Math.random()-0.5)*14;
+                const dx=lx-this.pos.x, dz=lz-this.pos.z;
+                const dist=Math.sqrt(dx*dx+dz*dz), spd=52+Math.random()*10;
+                cb.velocity.set((dx/dist)*spd, 22+Math.random()*6, (dz/dist)*spd);
+            } else {
+                const a=Math.random()*Math.PI*2, spd=38+Math.random()*14;
+                cb.velocity.set(Math.cos(a)*spd, 15+Math.random()*6, Math.sin(a)*spd);
+            }
+            cb.angularVelocity.set((Math.random()-0.5)*4,(Math.random()-0.5)*4,(Math.random()-0.5)*4);
+            world.addBody(cb);
+
+            this._flying.push({ combinedBody:cb, pieces, splitAt: performance.now() + _C.SPLIT_MS });
+            playPop();
+            if (!this._layers.length) this._showEmptyRect();
+        }
+
+        dispenseSinglePiece(targetMesh) {
+            for (let li = 0; li < this._layers.length; li++) {
+                const layer = this._layers[li];
+                if (!layer.pieces.find(p => p.mesh === targetMesh)) continue;
+
+                this._layers.splice(li, 1);
+                const { pieces, staticBody } = layer;
+                world.removeBody(staticBody);
+                pieces.forEach(p => { p.mesh.userData.isStack = false; });
+
+                pieces.forEach(({ mesh, type, ry }) => {
+                    const b = new CANNON.Body({ mass:1, linearDamping:0.15, angularDamping:0.88,
+                        allowSleep:false, collisionFilterGroup:1, collisionFilterMask:-1 });
+                    if (type==='frame') _cAddFrame(b);
+                    else if (type==='cyl') _cAddCyl(b);
+                    else _cAddSemi(b, ry);
+                    b.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
+                    const ryQ = new CANNON.Quaternion(); ryQ.setFromEuler(0, ry, 0);
+                    b.quaternion.copy(ryQ);
+                    b.velocity.setZero(); b.angularVelocity.setZero();
+                    world.addBody(b);
+                    addCollisionSound(b);
+                    objects.push(mesh);
+                    meshBodyMap.set(mesh, b);
+                });
+
+                if (!this._layers.length) this._showEmptyRect();
+                return targetMesh;
+            }
+            return null;
+        }
+
+        // Drop all remaining static layers as zero-velocity dynamic bodies
+        releaseRemainingLayers() {
+            if (!this._layers.length) return;
+            const allLayers = this._layers.splice(0);
+            for (const { pieces, staticBody } of allLayers) {
+                world.removeBody(staticBody);
+                pieces.forEach(({ mesh, type, ry }) => {
+                    mesh.userData.isStack = false;
+                    const b = new CANNON.Body({ mass:1, linearDamping:0.15, angularDamping:0.88,
+                        allowSleep:false, collisionFilterGroup:1, collisionFilterMask:-1 });
+                    if (type==='frame') _cAddFrame(b);
+                    else if (type==='cyl') _cAddCyl(b);
+                    else _cAddSemi(b, ry);
+                    b.position.set(mesh.position.x, mesh.position.y, mesh.position.z);
+                    const ryQ = new CANNON.Quaternion(); ryQ.setFromEuler(0, ry, 0);
+                    b.quaternion.copy(ryQ);
+                    b.velocity.setZero(); b.angularVelocity.setZero();
+                    world.addBody(b);
+                    addCollisionSound(b);
+                    objects.push(mesh);
+                    meshBodyMap.set(mesh, b);
+                });
+            }
+            this._showEmptyRect();
+        }
+
+        _showEmptyRect() {
+            const mat = new THREE.MeshStandardMaterial({
+                color:0xFFBF00, emissive:0xFFBF00, emissiveIntensity:0.6, transparent:true, opacity:0.5 });
+            const rect = new THREE.Mesh(new THREE.PlaneGeometry(10,10), mat);
+            rect.rotation.x = -Math.PI/2;
+            rect.position.set(this.pos.x, 0.02, this.pos.z);
+            scene.add(rect); emptyRects.push(rect);
+        }
+
+        _splitLayer({ combinedBody, pieces }) {
+            const vel=combinedBody.velocity, pos=combinedBody.position, quat=combinedBody.quaternion;
+            world.removeBody(combinedBody);
+            pieces.forEach(({ mesh, type, ry }) => {
+                const b = new CANNON.Body({ mass:1, linearDamping:0.15, angularDamping:0.88,
+                    allowSleep:false, collisionFilterGroup:1, collisionFilterMask:-1 });
+                if (type==='frame') _cAddFrame(b);
+                else if (type==='cyl') _cAddCyl(b);
+                else _cAddSemi(b, ry);
+                b.position.set(pos.x, pos.y, pos.z);
+                // Bake the local ry offset into the body's starting quaternion so the
+                // standard meshBodyMap sync loop (mesh.quaternion = body.quaternion) renders
+                // each piece correctly — and so the drag system can find the body via meshBodyMap.
+                const physQ = new CANNON.Quaternion(quat.x, quat.y, quat.z, quat.w);
+                if (ry) {
+                    const ryQ = new CANNON.Quaternion(); ryQ.setFromEuler(0, ry, 0);
+                    physQ.mult(ryQ, b.quaternion);
+                } else {
+                    b.quaternion.set(quat.x, quat.y, quat.z, quat.w);
+                }
+                b.velocity.set(vel.x+(Math.random()-0.5)*12, vel.y+(Math.random()-0.5)*6, vel.z+(Math.random()-0.5)*12);
+                b.angularVelocity.set((Math.random()-0.5)*8,(Math.random()-0.5)*8,(Math.random()-0.5)*8);
+                world.addBody(b); addCollisionSound(b);
+                objects.push(mesh);
+                meshBodyMap.set(mesh, b); // now selectable and draggable like any other piece
+            });
+        }
+
+        update() {
+            const now = performance.now();
+            for (let i = this._flying.length-1; i >= 0; i--) {
+                if (now >= this._flying[i].splitAt) {
+                    this._splitLayer(this._flying[i]);
+                    this._flying.splice(i,1);
+                }
+            }
+            // Combined flying: all meshes follow the one body
+            for (const { combinedBody, pieces } of this._flying) {
+                const bp=combinedBody.position;
+                const bq=new THREE.Quaternion(combinedBody.quaternion.x,combinedBody.quaternion.y,
+                    combinedBody.quaternion.z,combinedBody.quaternion.w);
+                pieces.forEach(({ mesh, ry }) => {
+                    mesh.position.set(bp.x, bp.y, bp.z);
+                    const lq=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), ry);
+                    mesh.quaternion.copy(bq).multiply(lq);
+                });
+            }
+            // Split pieces are now in meshBodyMap — the standard animate loop handles them.
+        }
+    }
+
+    const circleCube = new CircleCube({ x: 20, z: 33 });
+
+    function getAllStackMeshes() {
+        return [...playCubes.flatMap(c => c.stackMeshes), ...circleCube.stackMeshes];
+    }
+
+    // ── FLOOR BUTTONS ──────────────────────────────────────────────────────
+    // Static floor button builder (used for challenge button)
+    function makeFloorBtn(label, sublabel, bg, fg, x) {
+        const c = document.createElement('canvas');
+        c.width = c.height = 512;
+        const cx = c.getContext('2d');
+        cx.translate(0, 512); cx.scale(1, -1);
+        cx.fillStyle = bg;
+        cx.beginPath(); cx.arc(256,256,250,0,Math.PI*2); cx.fill();
+        const isLight = fg === '#1C252E';
+        cx.strokeStyle = isLight ? 'rgba(28,37,46,0.14)' : 'rgba(255,255,247,0.18)';
+        cx.lineWidth = 6;
+        cx.beginPath(); cx.arc(256,256,224,0,Math.PI*2); cx.stroke();
+        cx.strokeStyle = isLight ? 'rgba(28,37,46,0.14)' : 'rgba(255,255,247,0.2)';
+        cx.lineWidth = 10; cx.lineCap = 'round';
+        cx.beginPath(); cx.arc(256,256,192, -Math.PI*0.72, Math.PI*0.05); cx.stroke();
+        cx.beginPath(); cx.arc(256,256,192,  Math.PI*0.25, Math.PI*0.78); cx.stroke();
+        cx.fillStyle = fg; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+        cx.font = 'bold 78px Inter, Arial'; cx.fillText(label, 256, 248);
+        cx.fillStyle = isLight ? 'rgba(28,37,46,0.5)' : 'rgba(255,255,247,0.55)';
+        cx.font = '26px Inter, Arial'; cx.fillText(sublabel, 256, 330);
+        cx.fillStyle = isLight ? 'rgba(28,37,46,0.28)' : 'rgba(255,255,247,0.28)';
+        cx.font = 'bold 20px Inter, Arial'; cx.fillText('▼  TAP ME  ▼', 256, 406);
+        const tex = new THREE.CanvasTexture(c); tex.flipY = false;
+        const mesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(4.5, 4.5, 0.65, 48),
+            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.22, metalness: 0.06 })
+        );
+        mesh.position.set(x, 0.32, 0); mesh.rotation.y = Math.PI; mesh.castShadow = true;
+        scene.add(mesh); return mesh;
+    }
+
+    // Animated play button — live canvas, colour-cycling, glow pulse
+    const PLAY_COLOURS = ['#FFBF00','#FF7454','#FF005E','#748EFF','#C7FF7E','#C9EBFF'];
+    const _playBtnCanvas = document.createElement('canvas');
+    _playBtnCanvas.width = _playBtnCanvas.height = 512;
+    const _playBtnCtx = _playBtnCanvas.getContext('2d');
+    const _playBtnTex = new THREE.CanvasTexture(_playBtnCanvas);
+    _playBtnTex.flipY = false;
+
+    function drawPlayBtn(t) {
+        const cx = _playBtnCtx;
+        cx.clearRect(0, 0, 512, 512);
+        cx.save(); cx.translate(0, 512); cx.scale(1, -1);
+
+        // Colour cycle — blend between two adjacent palette colours
+        const cycleT  = (t * 0.5) % PLAY_COLOURS.length;
+        const idxA    = Math.floor(cycleT) % PLAY_COLOURS.length;
+        const idxB    = (idxA + 1) % PLAY_COLOURS.length;
+        const frac    = cycleT - Math.floor(cycleT);
+
+        function hexToRgb(h) {
+            const n = parseInt(h.slice(1), 16);
+            return [(n>>16)&255, (n>>8)&255, n&255];
+        }
+        function lerpCol(a, b, f) {
+            const [r1,g1,b1] = hexToRgb(a), [r2,g2,b2] = hexToRgb(b);
+            return `rgb(${Math.round(r1+(r2-r1)*f)},${Math.round(g1+(g2-g1)*f)},${Math.round(b1+(b2-b1)*f)})`;
+        }
+        const bgCol  = lerpCol(PLAY_COLOURS[idxA], PLAY_COLOURS[idxB], frac);
+        // Choose text colour based on luminance of current bg
+        const [r,g,b2] = hexToRgb(PLAY_COLOURS[idxA]);
+        const lum = (0.299*r + 0.587*g + 0.114*b2) / 255;
+        const fg  = lum > 0.55 ? '#1C252E' : '#FFFFF7';
+
+        // Outer glow ring — pulses
+        const glowR = 248 + Math.sin(t * 3.2) * 8;
+        const glowA = 0.55 + Math.sin(t * 3.2) * 0.3;
+        const grd = cx.createRadialGradient(256,256,200, 256,256,glowR+30);
+        grd.addColorStop(0,   bgCol.replace('rgb','rgba').replace(')',`,${glowA})`));
+        grd.addColorStop(0.5, bgCol.replace('rgb','rgba').replace(')',',0.15)'));
+        grd.addColorStop(1,   bgCol.replace('rgb','rgba').replace(')',',0)'));
+        cx.fillStyle = grd;
+        cx.beginPath(); cx.arc(256,256,glowR+30,0,Math.PI*2); cx.fill();
+
+        // Base circle
+        cx.fillStyle = bgCol;
+        cx.beginPath(); cx.arc(256,256,250,0,Math.PI*2); cx.fill();
+
+        // Inner ring
+        cx.strokeStyle = lum > 0.55 ? 'rgba(28,37,46,0.18)' : 'rgba(255,255,247,0.22)';
+        cx.lineWidth = 6;
+        cx.beginPath(); cx.arc(256,256,224,0,Math.PI*2); cx.stroke();
+
+        // Spinning arc accents
+        const arcRot = t * 0.6;
+        cx.strokeStyle = lum > 0.55 ? 'rgba(28,37,46,0.20)' : 'rgba(255,255,247,0.25)';
+        cx.lineWidth = 10; cx.lineCap = 'round';
+        cx.beginPath(); cx.arc(256,256,192, arcRot - Math.PI*0.72, arcRot + Math.PI*0.05); cx.stroke();
+        cx.beginPath(); cx.arc(256,256,192, arcRot + Math.PI*0.25, arcRot + Math.PI*0.78); cx.stroke();
+
+        // Label
+        cx.fillStyle = fg; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+        cx.font = 'bold 78px Inter, Arial'; cx.fillText('PLAYFUL', 256, 248);
+
+        // Sublabel
+        cx.fillStyle = lum > 0.55 ? 'rgba(28,37,46,0.5)' : 'rgba(255,255,247,0.6)';
+        cx.font = '26px Inter, Arial'; cx.fillText('Free play', 256, 330);
+
+        // Tap cue — pulse opacity
+        const tapA = 0.3 + Math.sin(t * 2.5) * 0.25;
+        cx.fillStyle = lum > 0.55
+            ? `rgba(28,37,46,${tapA})`
+            : `rgba(255,255,247,${tapA})`;
+        cx.font = 'bold 22px Inter, Arial'; cx.fillText('▼  TAP ME  ▼', 256, 406);
+
+        cx.restore();
+        _playBtnTex.needsUpdate = true;
+        // Sync emissive colour to current bg so glow matches
+        if (playBtnMesh) playBtnMesh.material.emissive.set(bgCol);
+    }
+
+    const playBtnMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(4.5, 4.5, 0.65, 48),
+        new THREE.MeshStandardMaterial({
+            map: _playBtnTex, roughness: 0.22, metalness: 0.06,
+            emissive: new THREE.Color('#FFBF00'), emissiveIntensity: 0.0
+        })
+    );
+    playBtnMesh.position.set(-7, 0.32, 0);
+    playBtnMesh.rotation.y = Math.PI;
+    playBtnMesh.castShadow = true;
+    scene.add(playBtnMesh);
+
+    const challengeBtnMesh = makeFloorBtn('CHALLENGE', 'Beat the clock', '#FF005E', '#FFFFF7', 7);
+
+    playBtnMesh.userData.isPlayButton           = true;
+    challengeBtnMesh.userData.isChallengeButton = true;
+    challengeBtnMesh.visible = false;
+
+    // Independent float state for each button
+    let btnFloatT     = 0;
+    // challenge floats on offset phase
+    let btnSinking    = false;
+    let btnSinkY      = 0.32;
+    let challengeSinkY = 0.32;
+    let challengeSinking = false;
+
+    // ── GAME START ─────────────────────────────────────────────────────────
+    function triggerPlayful() {
+        if (gameStarted) return;
+        gameStarted  = true;
+        btnSinking   = true;
+        challengeSinking = true;
+
+        startMusic();
+        runConfetti();
+
+        // Launch top layer from each cube, staggered
+        [...playCubes, circleCube].forEach((cube, i) => {
+            setTimeout(() => cube.dispenseLayer(true), i * 90);
+        });
+
+        setTimeout(() => {
+            document.getElementById('photo-btn-wrap').style.display = 'block';
+        }, 1800);
+    }
+
+    // ── CHALLENGE MODE ─────────────────────────────────────────────────────
+    const SNAP_DIST = 2.0; // world units — position tolerance for snap
+
+    // Challenge definitions. Positions are world-space. All challenges are centred
+    // at origin so the camera framing works naturally.
+    const CHALLENGE_DEFS = [
+        {
+            name: 'Tower',   // Level 0 — 3 slabs stacked, easy
+            pieces: [
+                { specType:'box', dims:{w:9,h:2.25,d:9}, pos:{x:0,y:1.125,z:0}, rotY:0 },
+                { specType:'box', dims:{w:9,h:2.25,d:9}, pos:{x:0,y:3.375,z:0}, rotY:0 },
+                { specType:'box', dims:{w:9,h:2.25,d:9}, pos:{x:0,y:5.625,z:0}, rotY:0 },
+            ]
+        },
+        {
+            name: 'House',   // Level 1 — 2 slabs + triangle roof
+            pieces: [
+                { specType:'box',          dims:{w:9,h:2.25,d:9},         pos:{x:0,y:1.125,z:0}, rotY:0 },
+                { specType:'box',          dims:{w:9,h:2.25,d:9},         pos:{x:0,y:3.375,z:0}, rotY:0 },
+                { specType:'triangle_iso', dims:{base:9,h:4.5,depth:4.5}, pos:{x:0,y:6.75, z:0}, rotY:0 },
+            ]
+        },
+        {
+            name: 'Rocket',  // Level 2 — beam base + slab body + triangle nose
+            pieces: [
+                { specType:'box', dims:{w:9,h:2.25,d:4.5}, pos:{x:0,y:1.125,z:-2.25}, rotY:0 },
+                { specType:'box', dims:{w:9,h:2.25,d:4.5}, pos:{x:0,y:1.125,z:+2.25}, rotY:0 },
+                { specType:'box', dims:{w:9,h:2.25,d:9},   pos:{x:0,y:3.375,z:0},     rotY:0 },
+                { specType:'box', dims:{w:9,h:2.25,d:9},   pos:{x:0,y:5.625,z:0},     rotY:0 },
+                { specType:'triangle_iso', dims:{base:9,h:4.5,depth:4.5}, pos:{x:0,y:9.0,z:0}, rotY:0 },
+            ]
+        },
+    ];
+
+    let challengeActive  = false;
+    let challengeLevel   = 0;
+    let challengeTargets = [];
+
+    // ── Ghost helpers ──────────────────────────────────────────────────────
+    function makeGhostGeom(specType, dims) {
+        if (specType === 'triangle_iso') return mkTriIsoGeo(dims.base, dims.h, dims.depth);
+        if (specType === 'triangle_ra')  return dims.flipY
+            ? mkTriRightGeoInv(dims.lx, dims.ly, dims.depth)
+            : mkTriRightGeo(dims.lx, dims.ly, dims.depth);
+        return new THREE.BoxGeometry(dims.w, dims.h, dims.d); // box / bridge / default
+    }
+
+    function spawnChallenge(level) {
+        const def = CHALLENGE_DEFS[level % CHALLENGE_DEFS.length];
+        challengeTargets = def.pieces.map(td => {
+            const geom = makeGhostGeom(td.specType, td.dims);
+
+            // Semi-transparent fill
+            const fill = new THREE.Mesh(geom.clone(), new THREE.MeshStandardMaterial({
+                color: 0x748EFF, transparent: true, opacity: 0.18,
+                depthWrite: false, side: THREE.DoubleSide
+            }));
+            fill.position.set(td.pos.x, td.pos.y, td.pos.z);
+            fill.rotation.y = td.rotY || 0;
+            fill.castShadow = false; fill.receiveShadow = false;
+            scene.add(fill);
+
+            // Edge outline
+            const edges = new THREE.EdgesGeometry(geom);
+            const line  = new THREE.LineSegments(
+                edges,
+                new THREE.LineBasicMaterial({ color: 0x748EFF })
+            );
+            line.position.set(td.pos.x, td.pos.y, td.pos.z);
+            line.rotation.y = td.rotY || 0;
+            scene.add(line);
+
+            return { ...td, fill, line, locked: false };
+        });
+    }
+
+    function setGhostHighlight(target, on) {
+        target.fill.material.color.set(on ? 0xFFBF00 : 0x748EFF);
+        target.fill.material.opacity = on ? 0.38 : 0.18;
+        target.line.material.color.set(on ? 0xFFBF00 : 0x748EFF);
+    }
+
+    function lockPiece(mesh, body, target) {
+        if (selectedObject === mesh) selectObject(null);
+
+        // Snap to exact ghost position
+        body.type = CANNON.Body.STATIC;
+        body.velocity.setZero(); body.angularVelocity.setZero();
+        body.position.set(target.pos.x, target.pos.y, target.pos.z);
+        body.quaternion.setFromEuler(0, target.rotY || 0, 0);
+        mesh.position.set(target.pos.x, target.pos.y, target.pos.z);
+        mesh.rotation.set(0, target.rotY || 0, 0);
+        mesh.userData.locked = true;
+
+        // Remove ghost
+        scene.remove(target.fill); scene.remove(target.line);
+        target.fill.geometry.dispose(); target.line.geometry.dispose();
+        target.locked = true;
+
+        playPop();
+        if (challengeTargets.every(t => t.locked)) setTimeout(onChallengeComplete, 700);
+    }
+
+    function onChallengeComplete() {
+        runConfetti();
+        challengeLevel++;
+        setTimeout(() => {
+            // Clear locked pieces from scene
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const m = objects[i];
+                if (!m.userData.locked) continue;
+                const b = meshBodyMap.get(m);
+                if (b) { world.removeBody(b); meshBodyMap.delete(m); triangleBodies.delete(b); }
+                scene.remove(m);
+                objects.splice(i, 1);
+            }
+            spawnChallenge(challengeLevel);
+        }, 3000);
+    }
+
+    function checkChallengeSnap() {
+        if (!challengeActive) return;
+        for (const target of challengeTargets) {
+            if (target.locked) continue;
+            let nearMesh = null, nearDist = Infinity;
+
+            for (const mesh of objects) {
+                if (mesh.userData.locked) continue;
+                // Type must match
+                if (mesh.userData.pieceSpecType !== target.specType) continue;
+                // For box types, also check footprint dims (stops slabs snapping to beam ghosts)
+                if (target.specType === 'box') {
+                    const pd = mesh.userData.pieceDims;
+                    const td = target.dims;
+                    const fwd = Math.abs(pd.w-td.w)<0.2 && Math.abs(pd.d-td.d)<0.2;
+                    const rot = Math.abs(pd.w-td.d)<0.2 && Math.abs(pd.d-td.w)<0.2;
+                    if (!fwd && !rot) continue;
+                }
+                const body = meshBodyMap.get(mesh);
+                if (!body) continue;
+                const dist = Math.hypot(
+                    body.position.x - target.pos.x,
+                    body.position.y - target.pos.y,
+                    body.position.z - target.pos.z
+                );
+                if (dist < nearDist) { nearDist = dist; nearMesh = mesh; }
+            }
+
+            // Highlight ghost when a matching piece is approaching
+            setGhostHighlight(target, nearMesh !== null && nearDist < SNAP_DIST * 1.6);
+
+            // Auto-lock when close enough and not currently held by player
+            if (nearMesh && nearDist < SNAP_DIST && nearMesh !== selectedObject) {
+                lockPiece(nearMesh, meshBodyMap.get(nearMesh), target);
+            }
+        }
+    }
+
+    function triggerChallenge() {
+        if (gameStarted) return;
+        gameStarted      = true;
+        challengeActive  = true;
+        btnSinking       = true;
+        challengeSinking = true;
+        startMusic();
+        spawnChallenge(0);
+        setTimeout(() => {
+            document.getElementById('photo-btn-wrap').style.display = 'block';
+        }, 1000);
+    }
+
+    // ── CONFETTI ───────────────────────────────────────────────────────────
+    function runConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const ctx  = canvas.getContext('2d');
+        const cols = ['#FFBF00','#FF7454','#748EFF','#C7FF7E','#FF005E','#FFFFF7','#1C252E'];
+        const pcs  = Array.from({ length: 95 }, () => ({
+            x: Math.random() * canvas.width, y: -20 - Math.random() * 80,
+            sz: 7 + Math.random() * 12, col: cols[Math.floor(Math.random() * cols.length)],
+            vx: (Math.random()-0.5)*5, vy: 3+Math.random()*4,
+            rot: Math.random()*360, rotV: (Math.random()-0.5)*9,
+            sh: ['sq','ci','tr'][Math.floor(Math.random()*3)],
+        }));
+        let f = 0;
+        (function tick() {
+            if (f++ > 135) { ctx.clearRect(0,0,canvas.width,canvas.height); return; }
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            pcs.forEach(p => {
+                p.x+=p.vx; p.y+=p.vy; p.vy+=0.18; p.rot+=p.rotV;
+                ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180); ctx.fillStyle=p.col;
+                if      (p.sh==='sq') ctx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz);
+                else if (p.sh==='ci') { ctx.beginPath(); ctx.arc(0,0,p.sz/2,0,Math.PI*2); ctx.fill(); }
+                else                  { ctx.beginPath(); ctx.moveTo(0,-p.sz/2); ctx.lineTo(p.sz/2,p.sz/2); ctx.lineTo(-p.sz/2,p.sz/2); ctx.closePath(); ctx.fill(); }
+                ctx.restore();
+            });
+            requestAnimationFrame(tick);
+        })();
+    }
+
+    // ── FLYAROUND ──────────────────────────────────────────────────────────
+    function startViewing() {
+        if (viewingActive) return;
+        viewingActive = true;
+        // Pick up the angle from wherever the camera currently is
+        viewAngle = Math.atan2(camera.position.x, camera.position.z);
+        orbit.enabled = false;
+        transformControl.detach();
+        selectedObject = null;
+        const btn = document.getElementById('btn-photo');
+        btn.textContent = '■ Stop';
+    }
+
+    function stopViewing() {
+        viewingActive = false;
+        orbit.enabled = true;
+        camera.position.set(115, 85, 0);
+        orbit.target.set(0, 3, 0);
+        const btn = document.getElementById('btn-photo');
+        btn.textContent = '▶ View My Playshape';
+    }
+
+    // ── DRAG ↔ PHYSICS ─────────────────────────────────────────────────────
+    function startDrag(body) {
+        body._isDragged = true; body.type = CANNON.Body.KINEMATIC;
+        body.velocity.setZero(); body.angularVelocity.setZero();
+        draggedBody = body;
+        dragAnchor.position.set(body.position.x, body.position.y, body.position.z);
+        dragAnchor.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+    }
+
+    function releaseDrag(body) {
+        body._isDragged = false; body.type = CANNON.Body.DYNAMIC;
+        body.velocity.setZero(); body.angularVelocity.setZero();
+        draggedBody = null;
+        body.collisionFilterMask = 2;
+        setTimeout(() => { body.collisionFilterMask = -1; body.velocity.setZero(); body.wakeUp(); }, 60);
+    }
+
+    transformControl.addEventListener('dragging-changed', e => {
+        orbit.enabled = !e.value;
+    });
+
+    // ── SELECTION ──────────────────────────────────────────────────────────
+    const raycaster = new THREE.Raycaster();
+    const mouse     = new THREE.Vector2();
+
+    function selectObject(obj) {
+        if (selectedObject === obj) return;
+
+        // Remove glow from previously selected mesh
+        if (selectedObject) {
+            const prev = selectedObject;
+            const glow = prev.getObjectByName('__glow');
+            if (glow) prev.remove(glow);
+
+            const pb = meshBodyMap.get(prev);
+            if (pb) {
+                pb._isDragged = false;
+                pb.type = CANNON.Body.DYNAMIC;
+                pb.velocity.setZero();
+                pb.angularVelocity.setZero();
+                setTimeout(() => { pb.collisionFilterMask = -1; pb.velocity.setZero(); pb.wakeUp(); }, 60);
+            }
+        }
+        draggedBody    = null;
+        selectedObject = obj;
+        transformControl.detach(); // never show handles on phone
+
+        if (obj) {
+            dragAnchor.position.copy(obj.position);
+            dragAnchor.quaternion.copy(obj.quaternion);
+            // No transformControl.attach — joysticks drive dragAnchor directly
+
+            // Glow outline — BackSide shell slightly scaled up
+            const glow = new THREE.Mesh(
+                obj.geometry,
+                new THREE.MeshBasicMaterial({
+                    color: 0xFFBF00,
+                    side: THREE.BackSide,
+                    transparent: true,
+                    opacity: 0.85,
+                    depthWrite: false
+                })
+            );
+            glow.name = '__glow';
+            glow.scale.setScalar(1.07);
+            obj.add(glow);
+
+            // Freeze body — no gravity while selected
+            const body = meshBodyMap.get(obj);
+            if (body) {
+                body._isDragged = true;
+                body.type = CANNON.Body.KINEMATIC;
+                body.velocity.setZero();
+                body.angularVelocity.setZero();
+                draggedBody = body;
+            }
+        }
+    }
+
+    // Track pointer movement so orbit/pan/zoom doesn't accidentally deselect
+    let _ptrDownX = 0, _ptrDownY = 0, _ptrMoved = false;
+    window.addEventListener('pointerdown', e => { _ptrDownX = e.clientX; _ptrDownY = e.clientY; _ptrMoved = false; });
+    window.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - _ptrDownX, e.clientY - _ptrDownY) > 6) _ptrMoved = true; });
+    window.addEventListener('pointerup',   e => {
+        // Only deselect on a clean tap on empty space (not a drag, not a UI click)
+        if (_ptrMoved) return;
+        if (e.target.closest('#ui-layer') && !e.target.closest('#canvas-container')) return;
+        if (transformControl.dragging || viewingActive) return;
+        if (!gameStarted || !selectedObject) return;
+        mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        // Only deselect if the tap didn't land on a piece or stack
+        const hitPiece = raycaster.intersectObjects(objects, false).length > 0;
+        const hitStack = getAllStackMeshes().length && raycaster.intersectObjects(getAllStackMeshes(), false).length > 0;
+        if (!hitPiece && !hitStack) selectObject(null);
+    });
+
+    function onPointerDown(event) {
+        if (event.target.closest('#ui-layer') && !event.target.closest('#canvas-container')) return;
+        if (transformControl.dragging || viewingActive) return;
+
+        mouse.x =  (event.clientX / window.innerWidth)  * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        if (!gameStarted) {
+            if (raycaster.intersectObject(playBtnMesh).length)      { triggerPlayful();   return; }
+            if (raycaster.intersectObject(challengeBtnMesh).length)  { triggerChallenge(); return; }
+            return;
+        }
+
+        // Physics pieces — select
+        const pieceHits = raycaster.intersectObjects(objects, false);
+        if (pieceHits.length) { selectObject(pieceHits[0].object); return; }
+
+        // Cube stacks — click selects the piece in place, no velocity
+        const stacks = getAllStackMeshes();
+        if (stacks.length) {
+            const stackHits = raycaster.intersectObjects(stacks, false);
+            if (stackHits.length) {
+                const hitMesh  = stackHits[0].object;
+                const cubeRef  = hitMesh.userData.cubeRef;
+                if (cubeRef) {
+                    const dispensed = cubeRef.dispenseSinglePiece(hitMesh);
+                    if (dispensed) selectObject(dispensed);
+                }
+                return;
+            }
+        }
+        // Deselect is now handled by pointerup with movement guard (above)
+    }
+
+    window.addEventListener('pointerdown', onPointerDown);
+
+    // ── PHONE UI EVENTS ────────────────────────────────────────────────────
+    const btnTranslate = document.getElementById('btn-translate');
+    const btnRotate    = document.getElementById('btn-rotate');
+
+    function setMode(mode) {
+        currentMode = mode; transformControl.setMode(mode);
+        btnTranslate.classList.toggle('active', mode === 'translate');
+        btnRotate.classList.toggle('active',    mode === 'rotate');
+    }
+    setMode('translate');
+
+    // Sound
+    // Sound — effects only
+    let sfxMuted = false;
+    document.getElementById('ptb-mute').addEventListener('click', () => {
+        initAudio();
+        sfxMuted = !sfxMuted;
+        audioMuted = sfxMuted; // audioMuted gates all Web Audio (effects)
+        if (getMaster()) { getMaster()._node.gain.value = sfxMuted ? 0 : 1; }
+        const waves = document.getElementById('ptb-mute-waves');
+        if (waves) waves.style.display = sfxMuted ? 'none' : '';
+    });
+
+    // Tune — music only
+    let musicMuted = false;
+    document.getElementById('ptb-tune').addEventListener('click', () => {
+        musicMuted = !musicMuted;
+        bgMusic.muted = musicMuted;
+        document.getElementById('ptb-tune').classList.toggle('active', !musicMuted);
+    });
+
+    // Photo button removed in this version
+
+    // Popup toggles
+    function makePhonePopupToggle(btnId, popupId) {
+        const btn   = document.getElementById(btnId);
+        const popup = document.getElementById(popupId);
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const isOpen = popup.classList.contains('open');
+            document.querySelectorAll('.toolbar-popup').forEach(p => p.classList.remove('open'));
+            if (!isOpen) popup.classList.add('open');
+        });
+    }
+    makePhonePopupToggle('ptb-event',   'ptb-popup-event');
+    makePhonePopupToggle('ptb-contact', 'ptb-popup-contact');
+    makePhonePopupToggle('ptb-help',    'ptb-popup-help');
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.toolbar-popup').forEach(p => p.classList.remove('open'));
+    });
+    document.querySelectorAll('.toolbar-popup').forEach(p => p.addEventListener('click', e => e.stopPropagation()));
+
+    // Event map button — Energy Central Campus, Blyth
+    document.getElementById('ptb-popup-event').querySelector('a').addEventListener('click', e => {
+        e.preventDefault();
+        window.open('https://maps.google.com/?q=Energy+Central+Campus,+Commissioners+Quay,+Blyth,+NE24+3AF', '_blank');
+    });
+
+    // ── THREE JOYSTICK CONTROLS ────────────────────────────────────────────
+    const JOY_RADIUS  = 38;
+    const JOY_SPEED   = 0.55;  // world units per frame (was 0.12 — much faster)
+    const JOY_RSPEED  = 0.055; // radians per frame
+    const JOY_LSPEED  = 0.35;  // lift units per frame
+
+    const joyControls = document.getElementById('joy-controls');
+
+    // State for each joystick: active touch id, normalised x/y
+    const joyState = {
+        move: { id: null, nx: 0, ny: 0 },
+        rot:  { id: null, nx: 0, ny: 0 },
+        lift: { id: null, ny: 0 }         // x ignored for lift
+    };
+
+    function makeJoy(baseId, knobId, key, axisLock) {
+        const base = document.getElementById(baseId);
+        const knob = document.getElementById(knobId);
+        const st   = joyState[key];
+
+        base.addEventListener('pointerdown', e => e.stopPropagation());
+
+        base.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const t = e.changedTouches[0];
+            st.id = t.identifier; st.nx = 0; st.ny = 0;
+        }, { passive: false });
+
+        base.addEventListener('touchmove', e => {
+            e.preventDefault();
+            for (const t of e.changedTouches) {
+                if (t.identifier !== st.id) continue;
+                const r  = base.getBoundingClientRect();
+                const cx = r.left + r.width  / 2;
+                const cy = r.top  + r.height / 2;
+                let dx = t.clientX - cx;
+                let dy = t.clientY - cy;
+                if (axisLock === 'y') dx = 0;  // lift: vertical only
+                const dist    = Math.sqrt(dx*dx + dy*dy);
+                const clamped = Math.min(dist, JOY_RADIUS);
+                const angle   = Math.atan2(dy, dx);
+                const kx = axisLock === 'y' ? 0 : Math.cos(angle) * clamped;
+                const ky = Math.sin(angle) * clamped;
+                knob.style.transform = `translate(calc(-50% + ${kx}px), calc(-50% + ${ky}px))`;
+                st.nx = kx / JOY_RADIUS;
+                st.ny = ky / JOY_RADIUS;
+            }
+        }, { passive: false });
+
+        base.addEventListener('touchend', e => {
+            for (const t of e.changedTouches) {
+                if (t.identifier !== st.id) continue;
+                st.id = null; st.nx = 0; st.ny = 0;
+                knob.style.transform = 'translate(-50%,-50%)';
+            }
+        });
+    }
+
+    makeJoy('joy-move-base', 'joy-move-knob', 'move', null);
+    makeJoy('joy-rot-base',  'joy-rot-knob',  'rot',  null);
+    makeJoy('joy-lift-base', 'joy-lift-knob', 'lift', 'y');
+
+    // Release button — illuminates when piece selected, tap to drop.
+    // Must use touchend (not click) — the parent lift base calls preventDefault on
+    // touchstart which suppresses the click event entirely on mobile.
+    const joyReleaseBtn = document.getElementById('joy-release-btn');
+    // A deliberate press on the button releases the piece.
+    // Swipes that start on the button and move away are treated as joystick input
+    // — we do NOT stopPropagation on touchstart so they flow through to the base.
+    // Only a touch that starts on the button AND ends with minimal movement (<12px)
+    // counts as a press.
+    const _releaseTouches = new Map(); // id → {startX, startY}
+    joyReleaseBtn.addEventListener('pointerdown', e => e.stopPropagation());
+    joyReleaseBtn.addEventListener('touchstart', e => {
+        // Do NOT preventDefault or stopPropagation — let the event reach the lift base
+        // so swipes still work normally.
+        for (const t of e.changedTouches) {
+            _releaseTouches.set(t.identifier, { x: t.clientX, y: t.clientY });
+        }
+    }, { passive: true });
+    joyReleaseBtn.addEventListener('touchend', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        let validPress = false;
+        for (const t of e.changedTouches) {
+            const start = _releaseTouches.get(t.identifier);
+            if (start) {
+                const moved = Math.hypot(t.clientX - start.x, t.clientY - start.y);
+                if (moved < 12) validPress = true;
+                _releaseTouches.delete(t.identifier);
+            }
+        }
+        if (!validPress || !selectedObject) return;
+        const body = meshBodyMap.get(selectedObject);
+        if (body && body._isDragged) releaseDrag(body);
+        selectObject(null);
+    });
+    joyReleaseBtn.addEventListener('touchcancel', e => {
+        for (const t of e.changedTouches) _releaseTouches.delete(t.identifier);
+    });
+
+    // Joysticks always visible — light up (active class) when piece is selected
+    function updateJoyVisibility() {
+        const hasSelection = !!selectedObject;
+        joyControls.classList.toggle('active', hasSelection);
+        // Enable/disable touch on bases
+        document.querySelectorAll('.joy-base').forEach(b => {
+            b.style.pointerEvents = hasSelection ? 'auto' : 'none';
+        });
+        if (!hasSelection) {
+            ['joy-move-knob','joy-rot-knob','joy-lift-knob'].forEach(id => {
+                const k = document.getElementById(id);
+                if (k) k.style.transform = 'translate(-50%,-50%)';
+            });
+            for (const k of Object.values(joyState)) { k.id = null; k.nx = 0; k.ny = 0; }
+        }
+    }
+
+    // Patch selectObject to show/hide joysticks
+    const _baseSelect = selectObject;
+    selectObject = function(obj) {
+        _baseSelect(obj);
+        updateJoyVisibility();
+    };
+
+    // Per-frame joystick application — called from animate loop
+    function applyJoystick() {
+        if (!selectedObject) return;
+
+        // ── Move joystick (XZ) ──
+        const ms = joyState.move;
+        if (ms.nx || ms.ny) {
+            const fwd = new THREE.Vector3();
+            camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
+            const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0,1,0));
+            dragAnchor.position.addScaledVector(right,  ms.nx * JOY_SPEED);
+            dragAnchor.position.addScaledVector(fwd,   -ms.ny * JOY_SPEED);
+            const B = 43;
+            dragAnchor.position.x = Math.max(-B, Math.min(B, dragAnchor.position.x));
+            dragAnchor.position.z = Math.max(-B, Math.min(B, dragAnchor.position.z));
+        }
+
+        // ── Rotate joystick ──
+        const rs = joyState.rot;
+        if (rs.nx || rs.ny) {
+            const right = new THREE.Vector3().crossVectors(
+                camera.getWorldDirection(new THREE.Vector3()),
+                new THREE.Vector3(0,1,0)
+            ).normalize();
+            if (rs.nx) dragAnchor.quaternion.multiply(
+                new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), -rs.nx * JOY_RSPEED)
+            );
+            if (rs.ny) dragAnchor.quaternion.multiply(
+                new THREE.Quaternion().setFromAxisAngle(right, rs.ny * JOY_RSPEED)
+            );
+        }
+
+        // ── Lift joystick (Y only) ──
+        // Simple clamp to 0 — the animate loop enforces the precise shape-aware
+        // floor minimum each frame, so we just prevent the anchor going underground.
+        const ls = joyState.lift;
+        if (ls.ny) {
+            dragAnchor.position.y = Math.max(
+                0,
+                Math.min(28, dragAnchor.position.y - ls.ny * JOY_LSPEED)
+            );
+        }
+    }
+
+    document.getElementById('btn-photo').addEventListener('click', () => {
+        viewingActive ? stopViewing() : startViewing();
+    });
+
+    // ── GALLERY ENTRY ──────────────────────────────────────────────────────
+    // Replace these two values with your own before going live:
+    const IMGUR_CLIENT_ID = 'YOUR_IMGUR_CLIENT_ID';    // imgur.com/api → register app
+    const FORMSPREE_URL   = 'https://formspree.io/f/YOUR_FORM_ID'; // formspree.io
+
+    const galleryBackdrop = document.getElementById('gallery-modal-backdrop');
+    const galleryPreview  = document.getElementById('gallery-preview');
+    const galleryEmail    = document.getElementById('gallery-email');
+    const galleryConsent  = document.getElementById('gallery-consent');
+    const gallerySubmit   = document.getElementById('gallery-submit');
+    const galleryStatus   = document.getElementById('gallery-status');
+
+    let _galleryImageData = null; // base64 string (no prefix)
+
+    function openGalleryModal() {
+        // Capture current scene state (no animation — instant)
+        renderer.render(scene, camera);
+        const raw    = renderer.domElement.toDataURL('image/jpeg', 0.72);
+        _galleryImageData = raw.split(',')[1];
+        galleryPreview.src = raw;
+
+        // Reset form state
+        galleryEmail.value    = '';
+        galleryConsent.checked = false;
+        gallerySubmit.disabled = true;
+        galleryStatus.textContent = '';
+        galleryStatus.style.color = '';
+
+        galleryBackdrop.classList.add('open');
+        setTimeout(() => galleryEmail.focus(), 120);
+    }
+
+    function closeGalleryModal() {
+        galleryBackdrop.classList.remove('open');
+    }
+
+    function updateSubmitState() {
+        const emailOk   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(galleryEmail.value.trim());
+        const consentOk = galleryConsent.checked;
+        gallerySubmit.disabled = !(emailOk && consentOk);
+    }
+
+    async function submitGalleryEntry() {
+        gallerySubmit.disabled = true;
+        galleryStatus.style.color = 'rgba(28,37,46,0.55)';
+        galleryStatus.textContent = 'Uploading image…';
+
+        try {
+            // 1 — Upload image to Imgur
+            const imgurRes = await fetch('https://api.imgur.com/3/image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`,
+                    'Content-Type':  'application/json',
+                },
+                body: JSON.stringify({ image: _galleryImageData, type: 'base64' })
+            });
+            if (!imgurRes.ok) throw new Error('Image upload failed');
+            const imgurData = await imgurRes.json();
+            const imageUrl  = imgurData.data.link;
+
+            galleryStatus.textContent = 'Submitting…';
+
+            // 2 — Send email + image URL to Formspree
+            const formRes = await fetch(FORMSPREE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    email:     galleryEmail.value.trim(),
+                    imageUrl,
+                    consent:   true,
+                    submitted: new Date().toISOString(),
+                })
+            });
+            if (!formRes.ok) throw new Error('Submission failed');
+
+            // Success
+            galleryStatus.style.color = '#2aaa6a';
+            galleryStatus.textContent = '✓ Submitted! Thanks for sharing your creation.';
+            gallerySubmit.textContent = 'Sent ✓';
+            setTimeout(closeGalleryModal, 2800);
+
+        } catch (err) {
+            galleryStatus.style.color = 'var(--peachy)';
+            galleryStatus.textContent = 'Something went wrong — please try again.';
+            gallerySubmit.disabled = false;
+        }
+    }
+
+    document.getElementById('btn-gallery-entry').addEventListener('click', openGalleryModal);
+    document.getElementById('gallery-modal-close').addEventListener('click', closeGalleryModal);
+    galleryBackdrop.addEventListener('click', e => { if (e.target === galleryBackdrop) closeGalleryModal(); });
+    galleryEmail.addEventListener('input', updateSubmitState);
+    galleryConsent.addEventListener('change', updateSubmitState);
+    gallerySubmit.addEventListener('click', submitGalleryEntry);
+
+    // Locator
+    function openFinder() {
+        const input = document.getElementById('finder-postcode');
+        const msg   = document.getElementById('finder-msg');
+        const pc    = input.value.trim().replace(/\s+/g,'');
+        if (!pc) {
+            msg.textContent = 'Enter a postcode first.'; msg.style.color = 'var(--peachy)';
+            setTimeout(() => { msg.textContent = ''; }, 2200); return;
+        }
+        window.open(`playshapes-finder.html?postcode=${encodeURIComponent(pc)}`, '_blank',
+            'width=1100,height=700,resizable=yes,scrollbars=no');
+    }
+    document.getElementById('finder-btn').addEventListener('click', openFinder);
+    document.getElementById('finder-postcode').addEventListener('keydown', e => { if (e.key==='Enter') openFinder(); });
+
+    // ── DELETE ─────────────────────────────────────────────────────────────
+    function deleteSelected() {
+        if (!selectedObject) return;
+        const body = meshBodyMap.get(selectedObject);
+        if (body) {
+            if (body._isDragged) releaseDrag(body);
+            world.removeBody(body); meshBodyMap.delete(selectedObject); bodyCooldown.delete(body); triangleBodies.delete(body);
+        }
+        scene.remove(selectedObject);
+        objects.splice(objects.indexOf(selectedObject), 1);
+        selectedObject.geometry.dispose();
+        if (Array.isArray(selectedObject.material)) selectedObject.material.forEach(m=>m.dispose());
+        else selectedObject.material.dispose();
+        selectedObject = null; transformControl.detach();
+
+        // Wake all remaining bodies so any unsupported pieces fall immediately
+        for (const [, b] of meshBodyMap) { b.wakeUp(); }
+    }
+
+    // ── KEYBOARD ───────────────────────────────────────────────────────────
+    const ARROW_MOVE = 1.0;          // units per keypress in translate mode
+    const ARROW_ROT  = Math.PI / 18; // 10° per keypress in rotate mode
+    const ORBIT_STEP = Math.PI / 36; // 5° per keypress for camera spin
+
+    window.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT') return;
+
+        // ── Mode & delete ──────────────────────────────────────────────
+        switch (e.key) {
+            case 'n': case 'N': setMode('translate'); return;
+            case 'm': case 'M': setMode('rotate');    return;
+            case 'Delete': case 'Backspace': deleteSelected(); return;
+        }
+
+        // ── Camera orbit (, and .) ────────────────────────────────────
+        if (e.key === ',' || e.key === '.') {
+            const pivot  = orbit.target.clone();
+            const offset = camera.position.clone().sub(pivot);
+            const angle  = e.key === ',' ? ORBIT_STEP : -ORBIT_STEP;
+            offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+            camera.position.copy(pivot.clone().add(offset));
+            camera.lookAt(orbit.target);
+            orbit.update();
+            return;
+        }
+
+        // ── Arrow keys — move or rotate selected piece ─────────────────
+        if (!selectedObject) return;
+        if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+        e.preventDefault();
+
+        // Camera-relative axes projected onto the XZ floor plane
+        const fwd = new THREE.Vector3();
+        camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
+        const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0));
+
+        if (currentMode === 'translate') {
+            switch (e.key) {
+                case 'ArrowLeft':  dragAnchor.position.addScaledVector(right, -ARROW_MOVE); break;
+                case 'ArrowRight': dragAnchor.position.addScaledVector(right, +ARROW_MOVE); break;
+                case 'ArrowUp':    dragAnchor.position.addScaledVector(fwd,   +ARROW_MOVE); break;
+                case 'ArrowDown':  dragAnchor.position.addScaledVector(fwd,   -ARROW_MOVE); break;
+            }
+        } else {
+            // Rotate: Y axis for left/right spin, camera-right axis for up/down tilt
+            const axis = (e.key === 'ArrowLeft' || e.key === 'ArrowRight')
+                ? new THREE.Vector3(0, 1, 0)
+                : right.clone().normalize();
+            const sign = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+            dragAnchor.quaternion.multiply(
+                new THREE.Quaternion().setFromAxisAngle(axis, sign * ARROW_ROT)
+            );
+        }
+    });
+
+    // ── RESIZE ─────────────────────────────────────────────────────────────
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ── ANIMATE ────────────────────────────────────────────────────────────
+    function animate() {
+        requestAnimationFrame(animate);
+        const delta = Math.min(clock.getDelta(), 0.1);
+
+        // Floor buttons — independent float phases
+        if (!gameStarted && !btnSinking) {
+            btnFloatT += delta;
+            playBtnMesh.position.y      = 0.32 + Math.sin(btnFloatT * 1.9)        * 0.28;
+            challengeBtnMesh.position.y = 0.32 + Math.sin(btnFloatT * 2.1 + 1.3)  * 0.28;
+            // Animate play button — colour cycle + emissive glow pulse
+            const bt = Date.now() * 0.001;
+            drawPlayBtn(bt);
+            playBtnMesh.material.emissiveIntensity = 0.18 + Math.sin(bt * 3.2) * 0.14;
+        }
+
+        if (btnSinking) {
+            btnSinkY -= delta * 3.5;
+            playBtnMesh.position.y = btnSinkY;
+            if (btnSinkY < -1.8) { scene.remove(playBtnMesh); btnSinking = false; }
+        }
+        if (challengeSinking) {
+            challengeSinkY -= delta * 3.5;
+            challengeBtnMesh.position.y = challengeSinkY;
+            if (challengeSinkY < -1.8) { scene.remove(challengeBtnMesh); challengeSinking = false; }
+        }
+
+        // Continuous flyaround
+        if (viewingActive) {
+            viewAngle += delta * 0.22; // ~28 s per full revolution
+            camera.position.set(
+                Math.sin(viewAngle) * 44,
+                18 + Math.sin(viewAngle * 0.7) * 6,
+                Math.cos(viewAngle) * 44
+            );
+            camera.lookAt(0, 4, 0);
+        }
+
+        // Pulse empty rects
+        if (emptyRects.length) {
+            const pulse = 0.35 + Math.sin(Date.now() * 0.0028) * 0.28;
+            emptyRects.forEach(r => { r.material.emissiveIntensity = pulse; });
+        }
+
+        // Animated floor texture update
+        updateFloorTexture(Date.now() * 0.001);
+        floorTex.needsUpdate = true;
+
+        // Apply joystick input first — moves the anchor.
+        // Must run BEFORE the drag clamp block so the clamp can correct any
+        // below-floor movement before the body position is written.
+        applyJoystick();
+
+        // Kinematic drag — keep every vertex above the floor regardless of rotation.
+        // For ConvexPolyhedron: rotate each vertex by current dragAnchor quaternion,
+        // find the lowest Y, and lift the body so that vertex sits exactly at y=0.
+        // This makes pieces pivot naturally on whatever is touching the floor.
+        if (draggedBody) {
+            const qq = dragAnchor.quaternion;
+            const qx=qq.x, qy=qq.y, qz=qq.z, qw=qq.w;
+            let minVertY = -MIN_DRAG_Y;
+            let hasConvex = false;
+            for (const shape of draggedBody.shapes) {
+                if (!shape.vertices) continue;
+                hasConvex = true;
+                for (const v of shape.vertices) {
+                    const vx=v.x, vy=v.y, vz=v.z;
+                    const ix=qw*vx+qy*vz-qz*vy, iy=qw*vy+qz*vx-qx*vz;
+                    const iz=qw*vz+qx*vy-qy*vx, iw=-qx*vx-qy*vy-qz*vz;
+                    const ry=iy*qw-iw*qy-iz*qx+ix*qz;
+                    if (ry < minVertY) minVertY = ry;
+                }
+            }
+            // Hard XZ boundary clamp — kinematic bodies bypass physics walls so enforce here
+            const DRAG_BOUND = 43;
+            const DRAG_CEIL  = 28; // max height
+            dragAnchor.position.x = Math.max(-DRAG_BOUND, Math.min(DRAG_BOUND, dragAnchor.position.x));
+            dragAnchor.position.z = Math.max(-DRAG_BOUND, Math.min(DRAG_BOUND, dragAnchor.position.z));
+            dragAnchor.position.y = Math.min(DRAG_CEIL, dragAnchor.position.y);
+
+            // Compute true floor minimum.
+            // For convex shapes: lowest rotated vertex gives exact contact point.
+            // For box shapes: account for shape offset Y as well as halfExtents.y
+            // so multi-shape pieces with offsets don't clip through the floor.
+            let floorMinY;
+            if (hasConvex) {
+                floorMinY = -minVertY;
+            } else {
+                floorMinY = MIN_DRAG_Y;
+                draggedBody.shapes.forEach((s, i) => {
+                    if (!s.halfExtents) return;
+                    const offsetY = draggedBody.shapeOffsets[i] ? draggedBody.shapeOffsets[i].y : 0;
+                    const bottom  = offsetY - s.halfExtents.y;   // lowest point of this shape in body space
+                    const contribution = s.halfExtents.y - bottom; // distance from body origin to its floor contact
+                    floorMinY = Math.max(floorMinY, -bottom);
+                });
+            }
+
+            // Clamp the anchor itself — joystick can never push it below the floor
+            dragAnchor.position.y = Math.max(floorMinY, dragAnchor.position.y);
+
+            draggedBody.position.set(dragAnchor.position.x, dragAnchor.position.y, dragAnchor.position.z);
+            draggedBody.quaternion.set(qx, qy, qz, qw);
+        }
+
+        world.step(1/60, delta, 3);
+
+        // ConvexPolyhedron prevents impossible balance natively.
+        // Just lock damping once pieces have settled so they don't keep rolling.
+        const _nt = Math.floor(Date.now() / 600);
+        if (_nt !== _triNudgeTick) {
+            _triNudgeTick = _nt;
+            const _now = performance.now();
+            for (const b of triangleBodies) {
+                if (b.type !== CANNON.Body.DYNAMIC) continue;
+                if (_now - b._dispensedAt < 2000) continue; // let pieces settle first
+                const lv2 = b.velocity.x**2 + b.velocity.y**2 + b.velocity.z**2;
+                const av2 = b.angularVelocity.x**2 + b.angularVelocity.y**2 + b.angularVelocity.z**2;
+                if (lv2 < 0.1 && av2 < 0.1) b.angularDamping = 0.88;
+            }
+        }
+
+        // Standard mesh-body sync (PlayCube pieces + post-split circle pieces)
+        for (const [mesh, body] of meshBodyMap) {
+            mesh.position.set(body.position.x, body.position.y, body.position.z);
+            mesh.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+        }
+
+        // Circle cube: combined flying + timed split
+        circleCube.update();
+
+        checkChallengeSnap();
+
+        // Pulse glow on selected object
+        if (selectedObject) {
+            const glow = selectedObject.getObjectByName('__glow');
+            if (glow) glow.material.opacity = 0.65 + Math.sin(Date.now() * 0.005) * 0.22;
+        }
+
+        orbit.update();
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+</script>
+</body>
+</html>
